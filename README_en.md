@@ -116,7 +116,6 @@ third_party_tex-hyphen
 ```
 
 ohos/                OpenHarmony compilation files and hpb binary files  
-collaboration/       Content for collaboration with other projects or organizations  
 data/                Language library  
 docs/                Documentation related to hyphenation  
 encoding/            Encoding database  

@@ -114,7 +114,6 @@ third_party_tex-hyphen
 └── webpage
 
 ohos/                OpenHarmony编译文件和hpb二进制文件
-collaboration/       用于存放与其他项目或组织的合作内容
 data/                语种库
 docs/                hyphenation相关文档资料
 encoding/            编码数据库
