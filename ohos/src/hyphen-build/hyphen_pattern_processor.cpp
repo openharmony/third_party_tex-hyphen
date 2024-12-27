@@ -341,7 +341,20 @@ namespace OHOS::Hyphenate {
         uint16_t maximumCp{0};
     };
 
-    static void ProcessPattern(const string& line, vector<string>* current)
+    void processSection(const string& line, map<string, vector<string>>& sections, vector<string>*& current)
+    {
+        string pat;
+        for (size_t i = 1; i < line.size() && !iswspace(line[i]) && line[i] != '{'; i++) {
+            pat += line[i];
+        }
+        cout << "resolved section: " << pat << endl;
+        if (!pat.empty()) {
+            sections[pat] = vector<string>();
+            current = &sections[pat];
+        }
+    }
+
+    static void ProcessContent(const string& line, vector<string>* current)
     {
         string pat;
         for (auto code : line) {
@@ -363,27 +376,19 @@ namespace OHOS::Hyphenate {
         }
     }
 
-    static void ProcessLine(const string& line, vector<string>* current, vector<string>& uncategorized,
+    static void ProcessLine(const string& line, vector<string>*& current, vector<string>& uncategorized,
                             map<string, vector<string>>& sections)
     {
         string pat;
         if (line.empty()) {
             return;
         } else if (line[0] == '\\') {
-            for (size_t i = 1; i < line.size() && !iswspace(line[i]) && line[i] != '{'; i++) {
-                pat += line[i];
-            }
-            cout << "resolved section " << pat << endl;
-            if (!pat.empty()) {
-                sections[pat] = vector<string>();
-                current = &sections[pat];
-            }
-            return;
+            processSection(line, sections, current);
         } else if (line[0] == '}') {
             current = &uncategorized;
-            return;
+        } else {
+            ProcessContent(line, current);
         }
-        ProcessPattern(line, current);
     }
 
     static int32_t ResolveSectionsFromFile(const char* fileName, map<string, vector<string>>& sections)
@@ -401,7 +406,7 @@ namespace OHOS::Hyphenate {
             ProcessLine(line, current, uncategorized, sections);
         }
 
-        cout << "Uncategorized data size " << uncategorized.size() << endl;
+        cout << "Uncategorized data size: " << uncategorized.size() << endl;
         cout << "Amount of sections: " << sections.size() << endl;
         for (const auto& section : sections) {
             cout << "  '" << section.first << "' size: " << section.second.size() << endl;
@@ -498,6 +503,7 @@ namespace OHOS::Hyphenate {
             vector<uint8_t> rules;
             ProcessPattern(pattern, codepoints, rules);
 
+            leaves[ix].code = ix;
             if (leaves[ix].patterns.find(codepoints) != leaves[ix].patterns.cend()) {
                 cerr << "### Multiple definitions for pattern with size: " << codepoints.size() << endl;
                 cerr << "###";
@@ -528,11 +534,11 @@ namespace OHOS::Hyphenate {
                 }
 #ifdef VERBOSE_PATTERNS
                 cout << "    '";
-            for (const auto& digit : pat.first) {
-                cout << "'0x" << hex << (int)digit << "' ";
-            }
-            cout << "' size: " << pat.second.size() << endl;
-            cout << "       ";
+                for (const auto& digit : pat.first) {
+                    cout << "'0x" << hex << (int)digit << "' ";
+                }
+                cout << "' size: " << pat.second.size() << endl;
+                cout << "       ";
 #endif
                 for (const auto& digit : pat.second) {
                     (void)digit;
@@ -608,7 +614,7 @@ namespace OHOS::Hyphenate {
     }
 
     static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRange& range, ofstream& out,
-                                         uint32_t& tableOffset, vector<PathOffset>& offsets, uint32_t& toc)
+                                         uint32_t& tableOffset, vector<PathOffset>& offsets)
     {
         vector<Path*> bigOnes;
         for (auto& leave : leaves) {
@@ -641,9 +647,6 @@ namespace OHOS::Hyphenate {
             offsets.push_back(PathOffset(offset, end, type, code));
         }
 
-        toc = out.tellp();
-        // and main table offsets
-        cout << "Produced " << offsets.size() << " paths with offset: " << toc << endl;
     }
 
     void ProcessDirectPointingValues(std::ofstream& out, const std::vector<PathOffset>& offsets, uint32_t& currentEnd,
@@ -768,8 +771,12 @@ int main(int argc, char** argv)
     uint32_t tableOffset = OHOS::Hyphenate::InitOutFileHead(out);
     vector<OHOS::Hyphenate::PathOffset> offsets;
     uint32_t toc = 0;
+    WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
+    toc = out.tellp();
+    // and main table offsets
+    cout << "Produced " << offsets.size() << " paths with z: " << toc
+         << endl;
 
-    WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets, toc);
     uint32_t currentEnd = OHOS::Hyphenate::FULL_TALBLE * 2; // initial offset (in 16 bites)
     OHOS::Hyphenate::Path::WritePacked(currentEnd, out);
 
