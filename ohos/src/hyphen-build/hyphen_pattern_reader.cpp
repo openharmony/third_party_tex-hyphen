@@ -31,10 +31,9 @@
 #include <unicode/utf8.h>
 #include <unistd.h>
 
+using namespace std;
+
 namespace OHOS::Hyphenate {
-    constexpr size_t SHIFT_BITS_14 = 14;
-    constexpr size_t SHIFT_BITS_30 = 30;
-    constexpr size_t PADDING_SIZE = 4;
 
     vector<uint16_t> ConvertToUtf16(const string& utf8Str)
     {
@@ -396,12 +395,12 @@ std::vector<uint16_t> CheckArgs(int argc, char** argv)
 {
     std::vector<uint16_t> target;
     if (argc != 3) { // 3: valid argument number
-        cout << "usage: './hyphen hyph-en-us.pat.hib <mytestword>' " << endl;
+        cout << "usage: './hyphen hyph-en-us.hpb <mytestword>' " << endl;
         return target;
     }
     target = OHOS::Hyphenate::GetInputWord(argv[ARG_NUM]);
     if (target.empty()) {
-        cout << "usage: './hyphen hyph-en-us.pat.hib <mytestword>' " << endl;
+        cout << "usage: './hyphen hyph-en-us.hpb <mytestword>' " << endl;
     }
     return target;
 }
@@ -428,7 +427,7 @@ void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
         }
 
         while (true) {
-            std::cout << "#loop c: '" << codeInfo.code_ << "' starting with offset: 0x" << std::hex << codeInfo.offset
+            std::cout << "#loop c: '" << codeInfo.code_ << "' starting with offset: 0x" << std::hex << codeInfo.offset_
                       << " table-offset 0x" << codeInfo.nextOffset_ << " index: " << codeInfo.index_ << std::endl;
 
             if (codeInfo.type == OHOS::Hyphenate::PathType::PATTERN) {
