@@ -113,7 +113,7 @@ third_party_tex-hyphen
 ├── tools
 └── webpage
 
-ohos/                鸿蒙编译文件和hpb二进制文件
+ohos/                OpenHarmony编译文件和hpb二进制文件
 collaboration/       用于存放与其他项目或组织的合作内容
 data/                语种库
 docs/                hyphenation相关文档资料
@@ -138,7 +138,6 @@ webpage/             tex-hyphen官网主页，提供了关于 hyph-utf8 包的�
 
 Ubuntu/Debian: sudo apt-get install g++  
 CentOS/Fedora: sudo yum install g++  
-Windows: 请下载并安装 MinGW  
 确保代码文件：确保你有 hyphen_pattern_processor.cpp 文件和需要处理的 .tex 文件，如 hyph-en-us.tex。
 
 ### 编译步骤

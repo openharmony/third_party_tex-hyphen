@@ -23,30 +23,30 @@ namespace OHOS::Hyphenate {
 #define SUCCEED (0)
 #define FAILED (-1)
 
-    constexpr size_t HYPHEN_DEFAULT_INDENT = 10;
-    constexpr size_t HYPHEN_INDENT_INCREMENT = 2;
-    constexpr size_t HYPHEN_BASE_CODE_SHIFT = 2;
-    constexpr size_t ROOT_INDENT = 12;
-    constexpr size_t LARGE_PATH_SIZE = 8;
-    constexpr size_t BYTES_PRE_WORD = 4;
-    constexpr size_t SHIFT_BITS_14 = 14;
-    constexpr size_t SHIFT_BITS_16 = 16;
-    constexpr size_t SHIFT_BITS_30 = 30;
-    constexpr size_t PADDING_SIZE = 4;
-    constexpr int32_t BREAK_FLAG = 9;
-    constexpr int32_t NO_BREAK_FLAG = 8;
+constexpr size_t HYPHEN_DEFAULT_INDENT = 10;
+constexpr size_t HYPHEN_INDENT_INCREMENT = 2;
+constexpr size_t HYPHEN_BASE_CODE_SHIFT = 2;
+constexpr size_t ROOT_INDENT = 12;
+constexpr size_t LARGE_PATH_SIZE = 8;
+constexpr size_t BYTES_PRE_WORD = 4;
+constexpr size_t SHIFT_BITS_14 = 14;
+constexpr size_t SHIFT_BITS_16 = 16;
+constexpr size_t SHIFT_BITS_30 = 30;
+constexpr size_t PADDING_SIZE = 4;
+constexpr int32_t BREAK_FLAG = 9;
+constexpr int32_t NO_BREAK_FLAG = 8;
 
 // We make assumption that 14 bytes is enough to represent offset
 // so we get two first bits in the array for path type
 // we have two bytes on the offset arrays
 // for these
-    enum class PathType : uint8_t {
-        PATTERN = 0,
-        LINEAR = 1,
-        PAIRS = 2,
-        DIRECT = 3
-    };
+enum class PathType : uint8_t {
+    PATTERN = 0,
+    LINEAR = 1,
+    PAIRS = 2,
+    DIRECT = 3
+};
 
-    std::vector<uint16_t> ConvertToUtf16(const std::string& utf8Str);
-}
+std::vector<uint16_t> ConvertToUtf16(const std::string& utf8Str);
+} // namespace OHOS::Hyphenate
 #endif
