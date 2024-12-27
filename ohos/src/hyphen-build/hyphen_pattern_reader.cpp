@@ -116,10 +116,10 @@ struct CodeInfo {
     int32_t OpenPatFile(const char* filePath);
     int32_t GetHeader();
     int32_t GetCodeInfo(uint16_t code);
-    void ProcessPattern(const std::vector<uint16_t>& target, size_t offset, vector<uint8_t>& result);
-    bool ProcessDirect(const std::vector<uint16_t>& target, size_t& offset);
-    void ProcessLinear(const std::vector<uint16_t>& target, size_t offset, vector<uint8_t>& result);
-    bool ProcessNextCode(const std::vector<uint16_t>& target, size_t& offset);
+    void ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result);
+    bool ProcessDirect(const std::vector<uint16_t>& target, const size_t& offset);
+    void ProcessLinear(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result);
+    bool ProcessNextCode(const std::vector<uint16_t>& target, const size_t& offset);
     void ClearResource();
     Header* fHeader{nullptr};
     uint8_t* fAddress{nullptr};
@@ -236,7 +236,7 @@ int32_t CodeInfo::GetCodeInfo(uint16_t code)
     return SUCCEED;
 }
 
-void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, size_t offset, vector<uint8_t>& result)
+void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result)
 {
     //   if we have reached pattern, apply it to result
     auto p = reinterpret_cast<const Pattern*>(fStaticOffset + fNextOffset);
@@ -266,7 +266,7 @@ void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, size_t offset
     //   else if we can directly point to next entry
 }
 
-bool CodeInfo::ProcessDirect(const std::vector<uint16_t>& target, size_t& offset)
+bool CodeInfo::ProcessDirect(const std::vector<uint16_t>& target, const size_t& offset)
 {
     // resolve new code point
     if (fIndex == offset) { // should never be the case
@@ -276,20 +276,20 @@ bool CodeInfo::ProcessDirect(const std::vector<uint16_t>& target, size_t& offset
 
     fIndex++;
     fCode = target[offset - fIndex];
-    offset = fHeader->CodeOffset(fCode);
-    if (offset > fHeader->maxCp) {
+    fOffset = fHeader->CodeOffset(fCode);
+    if (fOffset > fHeader->maxCp) {
         cout << "# break loop on direct" << endl;
         return true;
     }
 
-    auto nextValue = *(fStaticOffset + fNextOffset + offset);
+    auto nextValue = *(fStaticOffset + fNextOffset + fOffset);
     fNextOffset = nextValue & 0x3fff;
     fType = static_cast<PathType>(nextValue >> SHIFT_BITS_14);
     cout << "  found direct: " << char(fCode) << " : " << hex << nextValue << " with offset: " << fNextOffset << endl;
     return false;
 }
 
-void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, size_t offset, vector<uint8_t>& result)
+void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result)
 {
     auto p = reinterpret_cast<const ArrayOf16bits*>(fStaticOffset + fNextOffset);
     auto count = p->count;
@@ -334,7 +334,7 @@ void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, size_t offset,
     cout << "# break loop on linear" << endl;
 }
 
-bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, size_t& offset)
+bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, const size_t& offset)
 {
     // resolve new code point
     if (fIndex == offset) { // should detect this sooner
@@ -356,8 +356,8 @@ bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, size_t& offs
             fCode = target[offset - fIndex];
             cout << "      new value pair in : 0x" << j << " with code 0x" << hex << static_cast<int>(fCode) << "'"
                  << endl;
-            offset = fHeader->CodeOffset(fCode);
-            if (offset > fHeader->maxCp) {
+            fOffset = fHeader->CodeOffset(fCode);
+            if (fOffset > fHeader->maxCp) {
                 cout << "# break loop on pairs" << endl;
                 break;
             }
@@ -417,6 +417,31 @@ bool InitializeCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, char* filePath)
     return true;
 }
 
+void ProcessCodeLoop(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint16_t>& target, size_t i,
+                     std::vector<uint8_t>& result)
+{
+    while (true) {
+        std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset
+                  << " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
+
+        if (codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN) {
+            codeInfo.ProcessPattern(target, i, result);
+            break;
+        } else if (codeInfo.fType == OHOS::Hyphenate::PathType::DIRECT) {
+            if (codeInfo.ProcessDirect(target, i)) {
+                break;
+            }
+        } else if (codeInfo.fType == OHOS::Hyphenate::PathType::LINEAR) {
+            codeInfo.ProcessLinear(target, i, result);
+            break;
+        } else {
+            if (codeInfo.ProcessNextCode(target, i)) {
+                break;
+            }
+        }
+    }
+}
+
 void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint16_t>& target,
                      std::vector<uint8_t>& result)
 {
@@ -425,25 +450,8 @@ void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
             result[i] = 0;
             continue;
         }
-
-        while (true) {
-            std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset
-                      << " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
-
-            if (codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN) {
-                codeInfo.ProcessPattern(target, i, result);
-                break;
-            } else if (codeInfo.fType == OHOS::Hyphenate::PathType::DIRECT && codeInfo.ProcessDirect(target, i)) {
-                break;
-            } else if (codeInfo.fType == OHOS::Hyphenate::PathType::LINEAR) {
-                codeInfo.ProcessLinear(target, i, result);
-                break;
-            } else if (codeInfo.ProcessNextCode(target, i)) {
-                break;
-            } else {
-                break;
-            }
-        }
+        codeInfo.fIndex = 0;
+        ProcessCodeLoop(codeInfo, target, i, result);
     }
 }
 
