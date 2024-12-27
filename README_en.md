@@ -115,7 +115,7 @@ third_party_tex-hyphen
 └── webpage
 ```
 
-ohos/                HarmonyOS compilation files and hpb binary files  
+ohos/                OpenHarmony compilation files and hpb binary files  
 collaboration/       Content for collaboration with other projects or organizations  
 data/                Language library  
 docs/                Documentation related to hyphenation  
@@ -141,7 +141,6 @@ Install the GCC compiler: Ensure that the GCC compiler is installed on your syst
 
 Ubuntu/Debian: sudo apt-get install g++  
 CentOS/Fedora: sudo yum install g++  
-Windows: Please download and install MinGW  
 Ensure code files: Make sure you have the hyphen_pattern_processor.cpp file and the .tex file to be processed, such as hyph-en-us.tex.
 
 ### Compilation Steps
