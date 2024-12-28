@@ -72,6 +72,7 @@
                 <filteritem type="filename" name=".rspec|Gemfile|README.Norwegian|ROADMAP|Rakefile|lib|tex-hyphen-language.gem|tex-hyphen-language.gemspec" desc="原仓描述类文件"/>
             </filefilter>
             <filefilter name="defaultPolicyFilter" desc="Filters for compatibility，license header policies">
+                <filteritem type="filename" name="LICENSE" desc="LICENSE声明文件"/>
             </filefilter>
             <filefilter name="copyrightPolicyFilter" desc="Filters for copyright header policies">
             </filefilter>
