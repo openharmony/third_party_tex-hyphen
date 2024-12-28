@@ -243,7 +243,7 @@ struct Path {
         }
     }
 
-    uint16_t write(ostream& out, uint32_t offset = 0, uint16_t* endPos = nullptr, bool breakForCheck = false) const
+    uint16_t Write(ostream& out, uint32_t offset = 0, uint16_t* endPos = nullptr, bool breakForCheck = false) const
     {
         if (minimumCP > maximumCP) {
             cerr << "Minimum code point cannot be smaller than maximum, bailing out" << endl;
@@ -271,7 +271,7 @@ struct Path {
             vector<uint16_t> output;
             for (const auto& path : paths) {
                 output.push_back(path.first);
-                output.push_back(path.second.write(out, offset));
+                output.push_back(path.second.Write(out, offset));
             }
             pos = out.tellp(); // our header is after children data
             type = PathType::PAIRS;
@@ -288,7 +288,7 @@ struct Path {
             for (const auto& path : paths) {
                 // store offsets of the children to the table
                 if (path.first >= minimumCP && path.first <= maximumCP) {
-                    output[path.first - minimumCP] = path.second.write(out, offset);
+                    output[path.first - minimumCP] = path.second.Write(out, offset);
                 } else {
                     cerr << " ### Encountered distinct code point 0x'" << hex << (int)path.first
                          << " when writing direct array" << endl;
@@ -623,7 +623,7 @@ static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
                 continue;
             }
             uint16_t end{0};
-            uint16_t value = path.second.write(out, tableOffset, &end, path.first == 'a');
+            uint16_t value = path.second.Write(out, tableOffset, &end, path.first == 'a');
             uint16_t offset = value & 0x3fff;
             uint32_t type = value & 0x0000c000;
             uint16_t code = path.first;
@@ -636,7 +636,7 @@ static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
     // write distinc code points array after the direct ones
     for (auto path : bigOnes) {
         uint16_t end{0};
-        uint16_t value = path->write(out, tableOffset, &end);
+        uint16_t value = path->Write(out, tableOffset, &end);
         uint16_t offset = value & 0x3fff;
         uint32_t type = value & 0x0000c000;
         uint16_t code = path->code;
