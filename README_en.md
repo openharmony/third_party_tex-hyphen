@@ -135,14 +135,6 @@ improving the readability and aesthetics of documents.
 the same area, enhancing the reading experience.
 
 ## How to Use tex-hyphen in OpenHarmony
-### Prerequisites
-Install the GCC compiler: Ensure that the GCC compiler is installed on your system. You can install it using the following commands:   
-```
-Ubuntu/Debian: sudo apt-get install g++  
-CentOS/Fedora: sudo yum install g++  
-```
-Ensure code files: Make sure you have the hyphen_pattern_processor.cpp file and the .tex file to be processed, such as hyph-en-us.tex.
-
 ### Compilation Steps
 Open the terminal (or command prompt), navigate to the directory containing the hyphen_pattern_processor.cpp file, and  
 run the following command to compile the code:
