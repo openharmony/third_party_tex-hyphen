@@ -1,0 +1,83 @@
+[
+  {
+    "Name": "tex-hyphen",
+    "License": "MIT",
+    "License File": "licenses/LICENSE-MIT",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "GPL",
+    "License File": "licenses/LICENSE-GPL",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "GPL-2",
+    "License File": "licenses/LICENSE-GPL2",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "LGPL-2.1",
+    "License File": "licenses/LICENSE-LGPL2.1",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "LGPL-3",
+    "License File": "licenses/LICENSE-LGPL",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "LPPL-1",
+    "License File": "licenses/LICENSE-LPPL",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "LPPL-1.2",
+    "License File": "licenses/LICENSE-LPPL1.2",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "LPPL-1.3",
+    "License File": "licenses/LICENSE-LPPL1.3",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  },
+  {
+    "Name": "tex-hyphen",
+    "License": "MPL-1.1",
+    "License File": "licenses/LICENSE-MPL1.1",
+    "Version Number": "CTAN-2021.03.21",
+    "Owner": "wangxiaokai@huawei.com",
+    "Upstream URL": "https://github.com/hyphenation/tex-hyphen/tree/CTAN-2021.03.21",
+    "Description": "This is the central repository for all hyphenation patterns"
+  }
+]
