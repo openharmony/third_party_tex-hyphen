@@ -420,23 +420,24 @@ bool InitializeCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, char* filePath)
 void ProcessCodeLoop(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint16_t>& target, size_t i,
                      std::vector<uint8_t>& result)
 {
-    while (true) {
+    bool continueLoop = true;
+    while (continueLoop) {
         std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset
                   << " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
 
         if (codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN) {
             codeInfo.ProcessPattern(target, i, result);
-            break;
+            continueLoop = false;
         } else if (codeInfo.fType == OHOS::Hyphenate::PathType::DIRECT) {
             if (codeInfo.ProcessDirect(target, i)) {
-                break;
+                continueLoop = false;
             }
         } else if (codeInfo.fType == OHOS::Hyphenate::PathType::LINEAR) {
             codeInfo.ProcessLinear(target, i, result);
-            break;
+            continueLoop = false;
         } else {
             if (codeInfo.ProcessNextCode(target, i)) {
-                break;
+                continueLoop = false;
             }
         }
     }

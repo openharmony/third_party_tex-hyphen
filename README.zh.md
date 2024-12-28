@@ -9,8 +9,8 @@ URL：https://github.com/hyphenation/tex-hyphen
 License：多种组合  
 
 ## 引入背景陈述
-在多语言文档处理和排版中，正确的断字处理是至关重要的。tex-hyphen 提供了一套全面的断字模式，支持多种语言，为高质量的排版提供了基础保障。在  
-OpenHarmony 中，引入 tex-hyphen 可以显著提升多语言文档的排版质量。
+在多语言文档处理和排版中，正确的断字处理是至关重要的。tex-hyphen 提供了一套通用的断字模式，支持多种语言，为高质量的排版提供了基础保障。在  
+OpenHarmony中，引入tex-hyphen可以显著提升多语言文档的排版质量。
 
 ## 语种归类
 tex目录下包含了多个来自TeX hyphenations patterns的连字符规则，不同语种使用的开源许可证各不相同，整理归类：
@@ -128,16 +128,17 @@ webpage/             tex-hyphen官网主页，提供了关于 hyph-utf8 包的�
 ## 为 OpenHarmony 带来的价值
 
 **1.提高排版质量：** 通过引入 tex-hyphen，OpenHarmony 可以实现更为精准的断字处理，提高文档的可读性和美观度。  
-**2.提升小屏设备体验：** 在小屏设备中使用断词模式，能够在同一区域内显示更多内容，提升阅读体验。
+**2.提升小屏设备体验：** 在小屏设备中使用断词模式，能够在相同区域内显示更多内容，提升阅读体验。
 
 ## OpenHarmony中如何使用tex-hyphen
 
 ### 前提条件
-安装 GCC 编译器：确保你的系统中已安装 GCC 编译器。你可以通过以下命令来安装：  
-
+安装 GCC 编译器：确保你的系统中已安装 GCC 编译器，可通过以下命令进行安装：  
+```
 Ubuntu/Debian: sudo apt-get install g++  
 CentOS/Fedora: sudo yum install g++  
-确保代码文件：确保你有 hyphen_pattern_processor.cpp 文件和需要处理的 .tex 文件，如 hyph-en-us.tex。
+```
+确保代码文件：确保你有hyphen_pattern_processor.cpp文件和需要处理的.tex文件，例如hyph-en-us.tex。
 
 ### 编译步骤
 打开终端（或命令提示符），导航到包含 hyphen_pattern_processor.cpp 文件的目录，并运行以下命令来编译代码：
