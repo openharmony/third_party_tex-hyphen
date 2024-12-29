@@ -167,8 +167,8 @@ struct Path {
 
     static void WritePacked(const vector<uint8_t>& data, ostream& out)
     {
-        const size_t ALIGN_4BYTES = 0x03;
-        size_t size = data.size();
+        constexpr size_t ALIGN_4BYTES = 0x03;
+        uint16_t size = data.size();
         out.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
         if (data.size() & ALIGN_4BYTES) {
@@ -771,6 +771,7 @@ int main(int argc, char** argv)
     uint32_t tableOffset = OHOS::Hyphenate::InitOutFileHead(out);
     vector<OHOS::Hyphenate::PathOffset> offsets;
     uint32_t toc = 0;
+
     WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
     toc = out.tellp();
     // and main table offsets
