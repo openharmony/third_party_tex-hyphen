@@ -435,10 +435,10 @@ static string ProcessWord(const string& word)
 
 static void ResolvePatternsFromSections(map<string, vector<string>>& sections, vector<vector<uint16_t>>& utf16Patterns)
 {
-    for (const auto& pattern : sections.at("patterns")) {
+    for (const auto& pattern : sections["patterns"]) {
         utf16Patterns.push_back(ConvertToUtf16(pattern));
     }
-    for (const auto& word : sections.at("hyphenation")) {
+    for (const auto& word : sections["hyphenation"]) {
         utf16Patterns.push_back(ConvertToUtf16(ProcessWord(word)));
     }
 }
@@ -647,10 +647,9 @@ static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
     }
 }
 
-void ProcessDirectPointingValues(std::ofstream& out, const std::vector<PathOffset>& offsets, uint32_t& currentEnd,
-                                 CpRange range)
-{
-    auto lastEffectiveIterator = offsets.cbegin();
+    void ProcessDirectPointingValues(std::vector<PathOffset>::const_iterator& lastEffectiveIterator, std::ofstream& out,
+                                     const std::vector<PathOffset>& offsets, uint32_t& currentEnd, CpRange& range)
+    {
     for (size_t i = range.minimumCp; i <= range.maximumCp; i++) {
         auto iterator = offsets.cbegin();
         while (iterator != offsets.cend()) {
@@ -677,11 +676,11 @@ void ProcessDirectPointingValues(std::ofstream& out, const std::vector<PathOffse
     }
 }
 
-void ProcessDistinctCodepoints(std::ofstream& out, const std::vector<PathOffset>& offsets,
-                               std::vector<uint16_t>& mappings, uint32_t& currentEnd, uint16_t maximumCp)
+void ProcessDistinctCodepoints(std::vector<PathOffset>::const_iterator& lastEffectiveIterator, std::ofstream& out,
+                               const std::vector<PathOffset>& offsets, std::vector<uint16_t>& mappings,
+                               uint32_t& currentEnd, CpRange& range)
 {
-    auto lastEffectiveIterator = offsets.cbegin();
-    auto pos = maximumCp + 1;
+    auto pos = range.maximumCp + 1;
     while (++lastEffectiveIterator != offsets.cend()) {
         mappings.push_back(lastEffectiveIterator->code);
         mappings.push_back(pos++);
@@ -704,10 +703,10 @@ static void WriteOffestsToOutFile(ofstream& out, vector<PathOffset>& offsets, ui
 
     if (lastEffectiveIterator != offsets.cend()) {
         // Process direct pointing values with holes (to pad the missing entries)
-        ProcessDirectPointingValues(out, offsets, currentEnd, range);
+        ProcessDirectPointingValues(lastEffectiveIterator, out, offsets, currentEnd, range);
 
         // distinct codepoints that cannot be addressed by flat array index
-        ProcessDistinctCodepoints(out, offsets, mappings, currentEnd, range.maximumCp);
+        ProcessDistinctCodepoints(lastEffectiveIterator, out, offsets, mappings, currentEnd, range);
     }
 
     mappingsPos = out.tellp();
