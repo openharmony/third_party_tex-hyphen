@@ -9,8 +9,7 @@ URL：https://github.com/hyphenation/tex-hyphen
 License：多种组合  
 
 ## 引入背景陈述
-在多语言文档处理和排版中，正确的断字处理是至关重要的。tex-hyphen 提供了一套通用的断字模式，支持多种语言，为高质量的排版提供了基础保障。在  
-OpenHarmony中，引入tex-hyphen可以显著提升多语言文档的排版质量。
+在多语言文档处理和排版中，正确的断字处理是至关重要的。tex-hyphen 提供了一套通用的断字模式，支持多种语言，为高质量的排版提供了基础保障。在OpenHarmony中，引入tex-hyphen可以显著提升多语言文档的排版质量。
 
 ## 语种归类
 tex目录下包含了多个来自TeX hyphenations patterns的连字符规则，不同语种使用的开源许可证各不相同，整理归类：
@@ -113,11 +112,13 @@ third_party_tex-hyphen
 ├── tools
 └── webpage
 
+collaboration/       tex-hyphen官网依赖的js脚本、xml配置文件
 ohos/                OpenHarmony编译文件和hpb二进制文件
 data/                语种库
 docs/                hyphenation相关文档资料
 encoding/            编码数据库
 hyph-utf8/           TeX 的断字模式包，提供了以 UTF-8 编码的断字模式
+misc/                en-gb语种断词文件案例
 old/                 历史数据
 source/              源文件包
 TL/                  tlpsrc资源文件，tlpsrc文件是TeX Live系统中的一个包源文件，用于描述TeX Live包的元数据
@@ -134,9 +135,10 @@ webpage/             tex-hyphen官网主页，提供了关于 hyph-utf8 包的�
 
 
 ### 编译步骤
-打开终端（或命令提示符），导航到包含 hyphen_pattern_processor.cpp 文件的目录，并运行以下命令来编译代码：
+打开终端（或命令提示符），导航到包含 ohos/src/hyphen-build/hyphen_pattern_processor.cpp 文件的目录，并运行以下命令来编译代码：
 
 ```
+cd ohos/src/hyphen-build/
 g++ -g -Wall hyphen_pattern_processor.cpp -o transform
 ```
 上述命令说明：

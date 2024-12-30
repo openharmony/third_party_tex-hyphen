@@ -1,7 +1,6 @@
 # tex-hyphen
 ## Introduction
-tex-hyphen is a hyphenation pattern library for the TeX system. It can correctly hyphenate words in multiple languages  
-to improve typesetting quality.
+tex-hyphen is a hyphenation pattern library for the TeX system. It can correctly hyphenate words in multiple languages to improve typesetting quality.
 
 Source: tex-hyphen  
 URL: https://github.com/hyphenation/tex-hyphen  
@@ -9,13 +8,10 @@ Version: CTAN-2021.03.21
 License: Various combinations 
 
 ## Background
-In multilingual document processing and typesetting, correct hyphenation is crucial. tex-hyphen provides a comprehensive  
-set of hyphenation patterns that support multiple languages, ensuring high-quality typesetting. Introducing tex-hyphen  
-into OpenHarmony can significantly enhance the typesetting quality of multilingual documents.
+In multilingual document processing and typesetting, correct hyphenation is crucial. tex-hyphen provides a comprehensive set of hyphenation patterns that support multiple languages, ensuring high-quality typesetting. Introducing tex-hyphen into OpenHarmony can significantly enhance the typesetting quality of multilingual documents.
 
 ## Language Classification
-The tex directory contains multiple hyphenation patterns from TeX hyphenation patterns, each using different open-source  
-licenses. The classification is as follows:
+The tex directory contains multiple hyphenation patterns from TeX hyphenation patterns, each using different open-source licenses. The classification is as follows:
 * MIT License
 * GPL, GPL 2
 * LGPL 1, LGPL 2.1
@@ -114,12 +110,13 @@ third_party_tex-hyphen
 ├── tools
 └── webpage
 ```
-
+collaboration/       JavaScript dependencies and XML configuration files required by the tex-hyphen official website
 ohos/                OpenHarmony compilation files and hpb binary files  
 data/                Language library  
 docs/                Documentation related to hyphenation  
 encoding/            Encoding database  
 hyph-utf8/           Hyphenation pattern package for TeX, providing hyphenation patterns encoded in UTF-8  
+misc/                An example of a hyphenation file for the en-gb language.  
 old/                 Historical data  
 source/              Source file packages
 TL/                  tlpsrc resource files, which are package source files in the TeX Live system, used to describe  
@@ -129,17 +126,15 @@ webpage/             tex-hyphen official homepage, providing detailed informatio
 
 
 ## Value Brought to OpenHarmony
-**1. Improved Typesetting Quality:** By introducing tex-hyphen, OpenHarmony can achieve more accurate hyphenation,  
-improving the readability and aesthetics of documents.  
-**2. Enhanced Small Screen Experience:** Using hyphenation patterns on small screen devices can display more content in  
-the same area, enhancing the reading experience.
+**1. Improved Typesetting Quality:** By introducing tex-hyphen, OpenHarmony can achieve more accurate hyphenation, improving the readability and aesthetics of documents.  
+**2. Enhanced Small Screen Experience:** Using hyphenation patterns on small screen devices can display more content in the same area, enhancing the reading experience.
 
 ## How to Use tex-hyphen in OpenHarmony
 ### Compilation Steps
-Open the terminal (or command prompt), navigate to the directory containing the hyphen_pattern_processor.cpp file, and  
-run the following command to compile the code:
+Open the terminal (or command prompt), navigate to the directory containing the ohos/src/hyphen-build/hyphen_pattern_processor.cpp file, and run the following command to compile the code:
 
 ```
+cd ohos/src/hyphen-build/
 g++ -g -Wall hyphen_pattern_processor.cpp -o transform
 ```
 
