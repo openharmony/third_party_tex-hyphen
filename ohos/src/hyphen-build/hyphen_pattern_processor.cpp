@@ -68,7 +68,7 @@ struct Path {
             pattern = pat;
             // this is not very clear division yet, but generally
             // the direct array size needs to be limited
-            if ((code <= MAXIMUM_DIRECT_CODE_POINT) && (code != '.') && (code != '\'')) {
+            if ((code <= MAXIMUM_DIRECT_CODE_POINT) && (code != '.') && (code != '\'') && (code != '-')) {
                 maximumCP = max(maximumCP, code);
                 minimumCP = min(minimumCP, code);
             }
@@ -86,7 +86,7 @@ struct Path {
         if (auto ite = paths.find(key); ite != paths.end()) {
             ite->second.Process(path, pathSize, pat);
         } else {
-            if (key > MAXIMUM_DIRECT_CODE_POINT || key == '.' || key == '\'') {
+            if (key > MAXIMUM_DIRECT_CODE_POINT || key == '.' || key == '\'' || key == '-') {
                 // if we have direct children with distinct code points, we need to use
                 // value pairs
                 haveNoncontiguousChildren = true;
@@ -167,8 +167,8 @@ struct Path {
 
     static void WritePacked(const vector<uint8_t>& data, ostream& out)
     {
-        const size_t ALIGN_4BYTES = 0x03;
-        size_t size = data.size();
+        constexpr size_t ALIGN_4BYTES = 0x03;
+        uint16_t size = data.size();
         out.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
         if (data.size() & ALIGN_4BYTES) {
@@ -340,6 +340,24 @@ struct CpRange {
     uint16_t maximumCp{0};
 };
 
+struct PathOffset {
+    PathOffset(uint32_t o, uint32_t e, uint16_t t, uint16_t c) : offset(o), end(e), type(t), code(c) {}
+    int32_t offset;
+    int32_t end;
+    uint32_t type;
+    uint16_t code;
+};
+
+struct WriteOffestsParams {
+    WriteOffestsParams(vector<PathOffset> offsets, uint32_t mappingsPos, CpRange cpRange)
+        : fOffsets(offsets), fMappingsPos(mappingsPos), fCpRange(cpRange)
+    {
+    }
+    const vector<PathOffset> fOffsets;
+    uint32_t fMappingsPos;
+    CpRange fCpRange;
+};
+
 void processSection(const string& line, map<string, vector<string>>& sections, vector<string>*& current)
 {
     string pat;
@@ -435,10 +453,10 @@ static string ProcessWord(const string& word)
 
 static void ResolvePatternsFromSections(map<string, vector<string>>& sections, vector<vector<uint16_t>>& utf16Patterns)
 {
-    for (const auto& pattern : sections.at("patterns")) {
+    for (const auto& pattern : sections["patterns"]) {
         utf16Patterns.push_back(ConvertToUtf16(pattern));
     }
-    for (const auto& word : sections.at("hyphenation")) {
+    for (const auto& word : sections["hyphenation"]) {
         utf16Patterns.push_back(ConvertToUtf16(ProcessWord(word)));
     }
 }
@@ -565,14 +583,6 @@ static void BreakLeavesIntoPaths(map<uint16_t, PatternHolder>& leaves, CpRange& 
     }
 }
 
-struct PathOffset {
-    PathOffset(uint32_t o, uint32_t e, uint16_t t, uint16_t c) : offset(o), end(e), type(t), code(c) {}
-    int32_t offset;
-    int32_t end;
-    uint32_t type;
-    uint16_t code;
-};
-
 const size_t FULL_TALBLE = 4;
 
 static uint32_t InitOutFileHead(ofstream& out)
@@ -589,7 +599,7 @@ static uint32_t InitOutFileHead(ofstream& out)
     return FULL_TALBLE * 2; // return 2 multiple talble size, check this number
 }
 
-static int32_t FormatOutFileHead(ofstream& out, const uint32_t mappingsPos, CpRange range, const uint32_t toc)
+static int32_t FormatOutFileHead(ofstream& out, const WriteOffestsParams& params, const uint32_t toc)
 {
     out.seekp(ios::beg); // roll back to the beginning
     if (!out.good()) {
@@ -599,23 +609,24 @@ static int32_t FormatOutFileHead(ofstream& out, const uint32_t mappingsPos, CpRa
 
     // very minimalistic magic, perhaps more would be in order including
     // possible version number
-    uint32_t header = ('H' | ('H' << 8) | (range.minimumCp << 16) | (range.maximumCp << 24));
+    uint32_t header = ('H' | ('H' << 8) | (params.fCpRange.minimumCp << 16) | (params.fCpRange.maximumCp << 24));
     // write header
     out.write(reinterpret_cast<const char*>(&header), sizeof(header));
     // write toc
     out.write(reinterpret_cast<const char*>(&toc), sizeof(toc));
     // write mappings
-    out.write(reinterpret_cast<const char*>(&mappingsPos), sizeof(mappingsPos));
+    out.write(reinterpret_cast<const char*>(&params.fMappingsPos), sizeof(params.fMappingsPos));
     // write binary version
     const uint32_t version = 0x1 << 24;
     out.write(reinterpret_cast<const char*>(&version), sizeof(version));
     return SUCCEED;
 }
 
-static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRange& range, ofstream& out,
+static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRange& range, ofstream& out,
                                      uint32_t& tableOffset, vector<PathOffset>& offsets)
 {
     vector<Path*> bigOnes;
+    bool hasDirect {false};
     for (auto& leave : leaves) {
         for (auto& path : leave.second.paths) {
             if (path.first < range.minimumCp || path.first > range.maximumCp) {
@@ -630,6 +641,7 @@ static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
             cout << "direct:" << hex << (int)code << ": " << tableOffset << " : " << end << " type " << type << endl;
             tableOffset = end;
             offsets.push_back(PathOffset(offset, end, type, code));
+            hasDirect = true;
         }
     }
 
@@ -645,21 +657,24 @@ static void WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
         tableOffset = end;
         offsets.push_back(PathOffset(offset, end, type, code));
     }
+    return hasDirect;
 }
 
-void ProcessDirectPointingValues(std::ofstream& out, const std::vector<PathOffset>& offsets, uint32_t& currentEnd,
-                                 CpRange range)
+void ProcessDirectPointingValues(std::vector<PathOffset>::const_iterator& lastEffectiveIterator, std::ofstream& out,
+                                 WriteOffestsParams& params, uint32_t& currentEnd, bool hasDirect)
 {
-    auto lastEffectiveIterator = offsets.cbegin();
-    for (size_t i = range.minimumCp; i <= range.maximumCp; i++) {
-        auto iterator = offsets.cbegin();
-        while (iterator != offsets.cend()) {
+    for (size_t i = params.fCpRange.minimumCp; i <= params.fCpRange.maximumCp; i++) {
+        auto iterator = params.fOffsets.cbegin();
+        while (iterator != params.fOffsets.cend()) {
             if (iterator->code == i) {
                 break;
             }
             iterator++;
         }
-        if (iterator == offsets.cend()) {
+        if (iterator == params.fOffsets.cend()) {
+            if (!hasDirect) {
+                break;
+            }
             uint32_t dummy{0};
             Path::WritePacked(dummy, out);
             Path::WritePacked(currentEnd, out);
@@ -677,12 +692,14 @@ void ProcessDirectPointingValues(std::ofstream& out, const std::vector<PathOffse
     }
 }
 
-void ProcessDistinctCodepoints(std::ofstream& out, const std::vector<PathOffset>& offsets,
-                               std::vector<uint16_t>& mappings, uint32_t& currentEnd, uint16_t maximumCp)
+void ProcessDistinctCodepoints(std::vector<PathOffset>::const_iterator& lastEffectiveIterator, std::ofstream& out,
+                               WriteOffestsParams& params, std::vector<uint16_t>& mappings, uint32_t& currentEnd)
 {
-    auto lastEffectiveIterator = offsets.cbegin();
-    auto pos = maximumCp + 1;
-    while (++lastEffectiveIterator != offsets.cend()) {
+    auto pos = params.fCpRange.maximumCp;
+    if (params.fCpRange.maximumCp != 0) {
+        pos++;
+    }
+    while (++lastEffectiveIterator != params.fOffsets.cend()) {
         mappings.push_back(lastEffectiveIterator->code);
         mappings.push_back(pos++);
         uint32_t type = static_cast<uint32_t>(lastEffectiveIterator->type);
@@ -696,21 +713,27 @@ void ProcessDistinctCodepoints(std::ofstream& out, const std::vector<PathOffset>
     }
 }
 
-static void WriteOffestsToOutFile(ofstream& out, vector<PathOffset>& offsets, uint32_t& mappingsPos, CpRange& range,
-                                  uint32_t currentEnd)
+static void WriteOffestsToOutFile(ofstream& out, WriteOffestsParams& params, uint32_t currentEnd, bool hasDirect)
 {
-    auto lastEffectiveIterator = offsets.cbegin();
+    auto lastEffectiveIterator = params.fOffsets.cbegin();
     vector<uint16_t> mappings;
 
-    if (lastEffectiveIterator != offsets.cend()) {
-        // Process direct pointing values with holes (to pad the missing entries)
-        ProcessDirectPointingValues(out, offsets, currentEnd, range);
-
-        // distinct codepoints that cannot be addressed by flat array index
-        ProcessDistinctCodepoints(out, offsets, mappings, currentEnd, range.maximumCp);
+    ProcessDirectPointingValues(lastEffectiveIterator, out, params, currentEnd, hasDirect);
+    // If we don't have direct code points, mapped ones will have to be differently
+    // handled
+    if (!hasDirect) {
+        params.fCpRange.minimumCp = 0;
+        params.fCpRange.maximumCp = 0;
     }
 
-    mappingsPos = out.tellp();
+    if (lastEffectiveIterator != params.fOffsets.cend()) {
+        // Process direct pointing values with holes (to pad the missing entries)
+
+        // distinct codepoints that cannot be addressed by flat array index
+        ProcessDistinctCodepoints(lastEffectiveIterator, out, params, mappings, currentEnd);
+    }
+
+    params.fMappingsPos = out.tellp();
 
     if (!mappings.empty()) {
         Path::WritePacked(mappings, out);
@@ -771,7 +794,8 @@ int main(int argc, char** argv)
     uint32_t tableOffset = OHOS::Hyphenate::InitOutFileHead(out);
     vector<OHOS::Hyphenate::PathOffset> offsets;
     uint32_t toc = 0;
-    WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
+
+    bool hasDirect = WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
     toc = out.tellp();
     // and main table offsets
     cout << "Produced " << offsets.size() << " paths with z: " << toc << endl;
@@ -780,8 +804,9 @@ int main(int argc, char** argv)
     OHOS::Hyphenate::Path::WritePacked(currentEnd, out);
 
     uint32_t mappingsPos = 0;
-    WriteOffestsToOutFile(out, offsets, mappingsPos, range, currentEnd);
-    if (OHOS::Hyphenate::FormatOutFileHead(out, mappingsPos, range, toc) != SUCCEED) {
+    OHOS::Hyphenate::WriteOffestsParams writeOffestsParams(offsets, mappingsPos, range);
+    WriteOffestsToOutFile(out, writeOffestsParams, currentEnd, hasDirect);
+    if (OHOS::Hyphenate::FormatOutFileHead(out, writeOffestsParams, toc) != SUCCEED) {
         cout << "DONE: With " << to_string(countPat) << "patterns (8bit)" << endl;
     }
     return SUCCEED;
