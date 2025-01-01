@@ -277,7 +277,7 @@ bool CodeInfo::ProcessDirect(const std::vector<uint16_t>& target, const size_t& 
     fIndex++;
     fCode = target[offset - fIndex];
     fOffset = fHeader->CodeOffset(fCode);
-    if (fOffset > fHeader->maxCp) {
+    if (fHeader->minCp != fHeader->maxCp && fOffset > fHeader->maxCp) {
         cout << "# break loop on direct" << endl;
         return true;
     }
@@ -357,7 +357,7 @@ bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, const size_t
             cout << "      new value pair in : 0x" << j << " with code 0x" << hex << static_cast<int>(fCode) << "'"
                  << endl;
             fOffset = fHeader->CodeOffset(fCode);
-            if (fOffset > fHeader->maxCp) {
+            if (fHeader->minCp != fHeader->maxCp && fOffset > fHeader->maxCp) {
                 cout << "# break loop on pairs" << endl;
                 break;
             }
