@@ -21,15 +21,11 @@ tex目录下包含了多个来自TeX hyphenations patterns的连字符规则，�
 * BSD 3
 
 OHOS中使用以下语种资源：
-* as - 阿萨姆语（Assamese）
 * be - 白俄罗斯语（Belarusian）
-* bg - 保加利亚语（Bulgarian）
-* bn - 孟加拉语（Bengali）
 * cs - 捷克语（Czech）
 * cy - 威尔士语（Welsh）
 * da - 丹麦语（Danish）
 * de-1901 - 德语（German,1901orthography）
-* de-1996 - 德语（German,1996orthography）
 * de-ch-1901 - 瑞士德语（SwissGerman,1901orthography）
 * el-monoton - 现代希腊语（ModernGreek,monotonic）
 * el-polyton - 现代希腊语（ModernGreek,polytonic）
@@ -40,8 +36,6 @@ OHOS中使用以下语种资源：
 * fr - 法语（French）
 * ga - 爱尔兰语（Irish）
 * gl - 加利西亚语（Galician）
-* gu - 古吉拉特语（Gujarati）
-* hi - 印地语（Hindi）
 * hr - 克罗地亚语（Croatian）
 * hu - 匈牙利语（Hungarian）
 * hy - 亚美尼亚语（Armenian）
@@ -49,21 +43,12 @@ OHOS中使用以下语种资源：
 * is - 冰岛语（Icelandic）
 * it - 意大利语（Italian）
 * ka - 格鲁吉亚语（Georgian）
-* kn - 卡纳达语（Kannada）
-* la - 拉丁语（Latin）
 * lt - 立陶宛语（Lithuanian）
 * lv - 拉脱维亚语（Latvian）
 * mk - 马其顿语（Macedonian）
-* ml - 马拉雅拉姆语（Malayalam）
 * mn-cyrl - 蒙古语（Mongolian,Cyrillicscript）
-* mr - 马拉地语（Marathi）
-* mul-ethi - 埃塞俄比亚语（Ethiopic）
 * nl - 荷兰语（Dutch）
-* or - 奥里亚语（Odia）
-* pa - 旁遮普语（Punjabi）
-* pl - 波兰语（Polish）
 * pt - 葡萄牙语（Portuguese）
-* rm - 罗曼什语（Romansh）
 * ru - 俄语（Russian）
 * sh-cyrl - 塞尔维亚-克罗地亚语（Serbo-Croatian,Cyrillicscript）
 * sh-latn - 塞尔维亚-克罗地亚语（Serbo-Croatian,Latinscript）
@@ -71,8 +56,6 @@ OHOS中使用以下语种资源：
 * sl - 斯洛文尼亚语（Slovenian）
 * sr-cyrl - 塞尔维亚语（Serbian,Cyrillicscript）
 * sv - 瑞典语（Swedish）
-* ta - 泰米尔语（Tamil）
-* te - 泰卢固语（Telugu）
 * th - 泰语（Thai）
 * tk - 土库曼语（Turkmen）
 * tr - 土耳其语（Turkish）

@@ -15,20 +15,8 @@ hyphen_root = "//third_party/tex-hyphen"
 
 hpb_list = [
     {
-        language = "hyph-as"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-as.hpb"
-    },
-    {
         language = "hyph-be"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-be.hpb"
-    },
-    {
-        language = "hyph-bg"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-bg.hpb"
-    },
-    {
-        language = "hyph-bn"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-bn.hpb"
     },
     {
         language = "hyph-cs"
@@ -45,10 +33,6 @@ hpb_list = [
     {
         language = "hyph-de-1901"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-de-1901.hpb"
-    },
-    {
-        language = "hyph-de-1996"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-de-1996.hpb"
     },
     {
         language = "hyph-de-ch-1901"
@@ -91,14 +75,6 @@ hpb_list = [
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-gl.hpb"
     },
     {
-        language = "hyph-gu"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-gu.hpb"
-    },
-    {
-        language = "hyph-hi"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-hi.hpb"
-    },
-    {
         language = "hyph-hr"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-hr.hpb"
     },
@@ -127,14 +103,6 @@ hpb_list = [
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-ka.hpb"
     },
     {
-        language = "hyph-kn"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-kn.hpb"
-    },
-    {
-        language = "hyph-la"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-la.hpb"
-    },
-    {
         language = "hyph-lt"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-lt.hpb"
     },
@@ -147,44 +115,16 @@ hpb_list = [
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-mk.hpb"
     },
     {
-        language = "hyph-ml"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-ml.hpb"
-    },
-    {
         language = "hyph-mn-cyrl"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-mn-cyrl.hpb"
-    },
-    {
-        language = "hyph-mr"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-mr.hpb"
-    },
-    {
-        language = "hyph-mul-ethi"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-mul-ethi.hpb"
     },
     {
         language = "hyph-nl"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-nl.hpb"
     },
     {
-        language = "hyph-or"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-or.hpb"
-    },
-    {
-        language = "hyph-pa"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-pa.hpb"
-    },
-    {
-        language = "hyph-pl"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-pl.hpb"
-    },
-    {
         language = "hyph-pt"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-pt.hpb"
-    },
-    {
-        language = "hyph-rm"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-rm.hpb"
     },
     {
         language = "hyph-ru"
@@ -213,14 +153,6 @@ hpb_list = [
     {
         language = "hyph-sv"
         file_path = "${hyphen_root}/ohos/hpb-binary/hyph-sv.hpb"
-    },
-    {
-        language = "hyph-ta"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-ta.hpb"
-    },
-    {
-        language = "hyph-te"
-        file_path = "${hyphen_root}/ohos/hpb-binary/hyph-te.hpb"
     },
     {
         language = "hyph-th"
