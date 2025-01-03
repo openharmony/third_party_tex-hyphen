@@ -21,68 +21,63 @@ tex目录下包含了多个来自TeX hyphenations patterns的连字符规则，�
 * BSD 3
 
 OHOS中使用以下语种资源：
-* 阿拉伯语 Arabic (ar)
-* 阿萨姆语 Assamese (as)
-* 白俄罗斯语 Belarusian
-* 保加利亚语 Bulgarian (bg)
-* 孟加拉语 Bengali (bn)
-* 捷克语 Czech (cs)
-* 威尔士语 Welsh (cy)
-* 丹麦语 Danish (da)
-* 德语-1901 German (de-1901)
-* 德语-1996 German (de-1996)
-* 瑞士德语 SwissGerman (de-ch-1901)
-* 现代希腊语 Greek (el-monoton)
-* 现代希腊语 Modern Greek (el-polyton)
-* 英式英语 English （en-gb）
-* 美式英语 English （en-us）
-* 西班牙语 Spanish （es）
-* 爱沙尼亚语 Estonian (et)
-* 巴斯克语 Basque (eu)
-* 波斯语 Farsi (fa)
-* 法语 French (fr)
-* 爱尔兰语 Irish (ga)
-* 加利西亚语 Galician (gl)
-* 古吉拉特语 Gujarati (gu)
-* 印地语 Hindi (hi)
-* 克罗地亚语 Croatian (hr)
-* 匈牙利语 Hungarian (hu)
-* 亚美尼亚语 Armenian (hy)
-* 印度尼西亚语 Indonesian (id)
-* 冰岛语 Icelandic (is)
-* 意大利语 Italian (it)
-* 格鲁吉亚语 Georgian (ka)
-* 卡纳拉语(印度西南部卡纳塔克邦语言) Kannada (kn)
-* 现代和中世纪拉丁语 Latin (la)
-* 立陶宛语 Lithuanian (lt)
-* 拉脱维亚语 Latvian (lv)
-* 马其顿语 Macedonian
-* 马拉亚兰语(印度西南部喀拉拉邦的语言) Malayalam (ml)
-* 蒙古语 Mongolian (mn-cyrl)
-* 马拉塔语 Marathi (mr)
-* 埃塞俄比亚语 Ethiopic (mul-ethi)
-* 挪威语 Norwegian (nb)
-* 荷兰语 Dutch (nl)
-* 尼诺斯克语 Norwegian, nynorsk (nn)
-* 奥里雅语(印度东部奥里萨邦的语言) Oriya (or)
-* 旁遮普语 Panjabi (pa)
-* 波兰语 Polish (pl)
-* 葡萄牙语 Portuguese (pt)
-* 罗曼什语 Romansh (rm)
-* 俄语 Russian (ru)
-* 塞尔维亚-克罗地亚语 Serbo-Croatian,Latin (sh-cyrl)
-* 塞尔维亚-克罗地亚语、拉丁语 Serbo-Croatian,Latin (sh-latn)
-* 斯洛伐克语 Slovak (sk)
-* 斯洛文尼亚语 Slovenian (sl)
-* 塞尔维亚语，西里尔文 Serbian Serbian (sr-cyrl)
-* 瑞典语 Swedish (sv)
-* 泰米尔语 Tamil (ta)
-* 泰卢固语 Telugu (te)
-* 泰语 Thai (th)
-* 土库曼语 Turkmen (tk)
-* 土耳其语 Turkish (tr)
-* 乌克兰语 Ukrainian (uk)
-* 中文拼音 Chinese-pinyin (zh-latn-pinyin)
+* as - 阿萨姆语（Assamese）
+* be - 白俄罗斯语（Belarusian）
+* bg - 保加利亚语（Bulgarian）
+* bn - 孟加拉语（Bengali）
+* cs - 捷克语（Czech）
+* cy - 威尔士语（Welsh）
+* da - 丹麦语（Danish）
+* de-1901 - 德语（German,1901orthography）
+* de-1996 - 德语（German,1996orthography）
+* de-ch-1901 - 瑞士德语（SwissGerman,1901orthography）
+* el-monoton - 现代希腊语（ModernGreek,monotonic）
+* el-polyton - 现代希腊语（ModernGreek,polytonic）
+* en-gb - 英式英语（BritishEnglish）
+* en-us - 美式英语（AmericanEnglish）
+* es - 西班牙语（Spanish）
+* et - 爱沙尼亚语（Estonian）
+* fr - 法语（French）
+* ga - 爱尔兰语（Irish）
+* gl - 加利西亚语（Galician）
+* gu - 古吉拉特语（Gujarati）
+* hi - 印地语（Hindi）
+* hr - 克罗地亚语（Croatian）
+* hu - 匈牙利语（Hungarian）
+* hy - 亚美尼亚语（Armenian）
+* id - 印度尼西亚语（Indonesian）
+* is - 冰岛语（Icelandic）
+* it - 意大利语（Italian）
+* ka - 格鲁吉亚语（Georgian）
+* kn - 卡纳达语（Kannada）
+* la - 拉丁语（Latin）
+* lt - 立陶宛语（Lithuanian）
+* lv - 拉脱维亚语（Latvian）
+* mk - 马其顿语（Macedonian）
+* ml - 马拉雅拉姆语（Malayalam）
+* mn-cyrl - 蒙古语（Mongolian,Cyrillicscript）
+* mr - 马拉地语（Marathi）
+* mul-ethi - 埃塞俄比亚语（Ethiopic）
+* nl - 荷兰语（Dutch）
+* or - 奥里亚语（Odia）
+* pa - 旁遮普语（Punjabi）
+* pl - 波兰语（Polish）
+* pt - 葡萄牙语（Portuguese）
+* rm - 罗曼什语（Romansh）
+* ru - 俄语（Russian）
+* sh-cyrl - 塞尔维亚-克罗地亚语（Serbo-Croatian,Cyrillicscript）
+* sh-latn - 塞尔维亚-克罗地亚语（Serbo-Croatian,Latinscript）
+* sk - 斯洛伐克语（Slovak）
+* sl - 斯洛文尼亚语（Slovenian）
+* sr-cyrl - 塞尔维亚语（Serbian,Cyrillicscript）
+* sv - 瑞典语（Swedish）
+* ta - 泰米尔语（Tamil）
+* te - 泰卢固语（Telugu）
+* th - 泰语（Thai）
+* tk - 土库曼语（Turkmen）
+* tr - 土耳其语（Turkish）
+* uk - 乌克兰语（Ukrainian）
+* zh-latn-pinyin - 汉语拼音（Chinese,Pinyin）
 
 ## 目录结构
 

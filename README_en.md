@@ -20,68 +20,63 @@ The tex directory contains multiple hyphenation patterns from TeX hyphenation pa
 * BSD 3
 
 Languages used in OHOS:
-* Arabic (ar)
-* Assamese (as)
-* Belarusian
-* Bulgarian (bg)
-* Bengali (bn)
-* Czech (cs)
-* Welsh (cy)
-* Danish (da)
-* German-1901 (de-1901)
-* German-1996 (de-1996)
-* Swiss German (de-ch-1901)
-* Modern Greek (el-monoton)
-* Modern Greek (el-polyton)
-* British English (en-gb)
-* American English (en-us)
-* Spanish (es)
-* Estonian (et)
-* Basque (eu)
-* Farsi (fa)
-* French (fr)
-* Irish (ga)
-* Galician (gl)
-* Gujarati (gu)
-* Hindi (hi)
-* Croatian (hr)
-* Hungarian (hu)
-* Armenian (hy)
-* Indonesian (id)
-* Icelandic (is)
-* Italian (it)
-* Georgian (ka)
-* Kannada (kn)
-* Latin (la)
-* Lithuanian (lt)
-* Latvian (lv)
-* Macedonian
-* Malayalam (ml)
-* Mongolian (mn-cyrl)
-* Marathi (mr)
-* Ethiopic (mul-ethi)
-* Norwegian (nb)
-* Dutch (nl)
-* Norwegian, nynorsk (nn)
-* Oriya (or)
-* Panjabi (pa)
-* Polish (pl)
-* Portuguese (pt)
-* Romansh (rm)
-* Russian (ru)
-* Serbo-Croatian, Latin (sh-cyrl)
-* Serbo-Croatian, Latin (sh-latn)
-* Slovak (sk)
-* Slovenian (sl)
-* Serbian, Cyrillic (sr-cyrl)
-* Swedish (sv)
-* Tamil (ta)
-* Telugu (te)
-* Thai (th)
-* Turkmen (tk)
-* Turkish (tr)
-* Ukrainian (uk)
-* Chinese-pinyin (zh-latn-pinyin)
+* as - Assamese
+* be - Belarusian
+* bg - Bulgarian
+* bn - Bengali
+* cs - Czech
+* cy - Welsh
+* da - Danish
+* de-1901 - German (1901 orthography)
+* de-1996 - German (1996 orthography)
+* de-ch-1901 - Swiss German (1901 orthography)
+* el-monoton - Modern Greek (monotonic)
+* el-polyton - Modern Greek (polytonic)
+* en-gb - British English
+* en-us - American English
+* es - Spanish
+* et - Estonian
+* fr - French
+* ga - Irish
+* gl - Galician
+* gu - Gujarati
+* hi - Hindi
+* hr - Croatian
+* hu - Hungarian
+* hy - Armenian
+* id - Indonesian
+* is - Icelandic
+* it - Italian
+* ka - Georgian
+* kn - Kannada
+* la - Latin
+* lt - Lithuanian
+* lv - Latvian
+* mk - Macedonian
+* ml - Malayalam
+* mn-cyrl - Mongolian (Cyrillic script)
+* mr - Marathi
+* mul-ethi - Ethiopic
+* nl - Dutch
+* or - Odia
+* pa - Punjabi
+* pl - Polish
+* pt - Portuguese
+* rm - Romansh
+* ru - Russian
+* sh-cyrl - Serbo-Croatian (Cyrillic script)
+* sh-latn - Serbo-Croatian (Latin script)
+* sk - Slovak
+* sl - Slovenian
+* sr-cyrl - Serbian (Cyrillic script)
+* sv - Swedish
+* ta - Tamil
+* te - Telugu
+* th - Thai
+* tk - Turkmen
+* tr - Turkish
+* uk - Ukrainian
+* zh-latn-pinyin - Chinese (Pinyin)
 
 ## Directory Structure
 ```
