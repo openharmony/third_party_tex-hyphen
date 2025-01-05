@@ -51,12 +51,12 @@ std::vector<uint16_t> ConvertToUtf16(const std::string& utf8Str);
 
 class HyphenProcessor {
 public:
-    void proccess(std::string& filePath, std::string& outFilePath);
+    void Proccess(std::string& filePath, std::string& outFilePath);
 };
 
 class HyphenReader {
 public:
-    int32_t read(char* filePath, const std::vector<uint16_t>& utf16Target);
+    int32_t Read(char* filePath, const std::vector<uint16_t>& utf16Target);
 };
 
 } // namespace OHOS::Hyphenate

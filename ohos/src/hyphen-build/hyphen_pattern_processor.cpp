@@ -761,7 +761,7 @@ void CreateDirectory(const std::string& folderPath)
     }
 }
 
-void HyphenProcessor::proccess(std::string& filePath, std::string& outFilePath)
+void HyphenProcessor::Proccess(std::string& filePath, std::string& outFilePath)
 {
     map<string, vector<string>> sections;
     if (ResolveSectionsFromFile(filePath, sections)) {
@@ -815,6 +815,6 @@ int main(int argc, char** argv)
     string outFilePath = argv[2];
 
     OHOS::Hyphenate::HyphenProcessor hyphenProcessor;
-    hyphenProcessor.proccess(filePath, outFilePath);
+    hyphenProcessor.Proccess(filePath, outFilePath);
     return SUCCEED;
 }

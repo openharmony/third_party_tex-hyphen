@@ -439,7 +439,7 @@ void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
     }
 }
 
-int32_t HyphenReader::read(char* filePath, const std::vector<uint16_t>& utf16Target)
+int32_t HyphenReader::Read(char* filePath, const std::vector<uint16_t>& utf16Target)
 {
     CodeInfo codeInfo;
     if (!InitializeCodeInfo(codeInfo, filePath)) {
@@ -479,5 +479,5 @@ int main(int argc, char** argv)
     }
 
     OHOS::Hyphenate::HyphenReader hyphenReader;
-    return hyphenReader.read(argv[1], target);
+    return hyphenReader.Read(argv[1], target);
 }
