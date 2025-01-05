@@ -93,14 +93,14 @@ third_party_tex-hyphen
 collaboration/       tex-hyphen官网依赖的js脚本、xml配置文件
 ohos/                OpenHarmony编译文件和hpb二进制文件
 data/                语种库
-docs/                hyphenation相关文档资料
-encoding/            编码数据库
+docs/                包含项目的文档，解释了断词算法和其他相关信息。
+encoding/            包含编码相关的文件，用于处理不同字符集的编码问题。
 hyph-utf8/           TeX 的断字模式包，提供了以 UTF-8 编码的断字模式
 misc/                en-gb语种断词文件案例
-old/                 历史数据
-source/              源文件包
+old/                 包含一些旧的断词模式文件，这些文件可能已经被更新或替换。
+source/              包含源代码文件，用于生成和处理断词模式。
 TL/                  tlpsrc资源文件，tlpsrc文件是TeX Live系统中的一个包源文件，用于描述TeX Live包的元数据
-tools/               工具包
+tools/               包含一些工具脚本，用于辅助处理断词模式文件。
 webpage/             tex-hyphen官网主页，提供了关于 hyph-utf8 包的详细信息和资源
 ```
 
@@ -111,9 +111,9 @@ webpage/             tex-hyphen官网主页，提供了关于 hyph-utf8 包的�
 
 ## OpenHarmony中如何使用tex-hyphen
 
-
-### 编译步骤
-打开终端（或命令提示符），导航到包含 ohos/src/hyphen-build/hyphen_pattern_processor.cpp 文件的目录，并运行以下命令来编译代码：
+### 1、编译hpb二进制
+#### 编译步骤
+打开终端（或命令提示符），导航到包含 [hyphen_pattern_processor.cpp](ohos%2Fsrc%2Fhyphen-build%2Fhyphen_pattern_processor.cpp) 文件的目录，并运行以下命令来编译代码：
 
 ```
 cd ohos/src/hyphen-build/
@@ -126,7 +126,7 @@ g++ -g -Wall hyphen_pattern_processor.cpp -o transform
 - hyphen_pattern_processor.cpp: 源代码文件。  
 - -o transform: 指定输出的可执行文件名为 transform。
 
-### 运行步骤
+#### 运行步骤
 编译完成后，可以使用以下命令来运行生成的可执行文件，并处理指定的 .tex 文件：
 ```
 ./transform hyph-en-us.tex ./out/
@@ -136,6 +136,65 @@ g++ -g -Wall hyphen_pattern_processor.cpp -o transform
 - hyph-en-us.tex: 输入文件（待处理的 .tex 文件）。  
 - ./out/: 输出目录（处理后的文件将存储在此目录中）。  
 
-运行成功后，处理后的文件将存储在 ./out/ 目录中。
+运行成功后，处理后的.hpb二进制文件将存储在 ./out/ 目录中。
+### 2、通过hpb解析单词断词位置
+#### 编译步骤
+打开终端（或命令提示符），导航到包含 [hyphen_pattern_reader.cpp](ohos%2Fsrc%2Fhyphen-build%2Fhyphen_pattern_reader.cpp) 文件的目录，并运行以下命令来编译代码：
 
+```
+cd ohos/src/hyphen-build/
+g++ -g -Wall hyphen_pattern_reader.cpp -o reader
+```
+上述命令说明：
+- g++: 调用 GCC 编译器。
+- -g: 添加调试信息。
+- -Wall: 启用所有警告。
+- hyphen_pattern_reader.cpp: 源代码文件。
+- -o reader: 指定输出的可执行文件名为 reader。
 
+#### 运行步骤
+编译完成后，可以使用以下命令来解析对应语种的单词：
+```
+./reader hyph-en-us.hpb helloworld
+```
+上述命令说明：
+- ./reader: 运行生成的 reader 可执行文件。
+- hyph-en-us.hpb: 输入文件（待解析的二进制文件）。
+- helloworld: 待解析的单词。
+
+运行成功后，日志中将会输出本次解析的单词断词信息。
+
+### 3、批量验证
+通过[generate_report.py](ohos%2Ftest%2Fgenerate_report.py)python脚本读取[report_config.json](ohos%2Ftest%2Freport_config.json)配置文件，可实现批量校验生成的二进制文件是否有效
+#### 准备
+- Python 3.x
+- transform和reader可执行文件，并将可执行文件放在脚本同一级目录
+- report_config.json配置文件
+#### 使用方法
+1. 准备配置文件  
+首先，创建一个JSON格式的配置文件report_config.json，包含以下内容：
+```
+   {
+       "file_path": "path/to/tex/files",
+       "tex_files": [
+           {
+           "filename": "example.tex",
+           "words": ["word1", "word2", "word3", "word4", "word5", "word6", "word7", "word8", "word9", "word10"]
+           },
+       ...
+       ]
+   }
+```
+- file_path：TeX文件所在的目录路径。
+- tex_files：包含多个TeX文件及其对应的单词列表。
+2. 运行脚本  
+在终端中运行以下命令：
+```
+python generate_report.py report_config.json
+```
+3. 日志文件  
+脚本会在 report 目录下生成一个带有时间戳的子目录，包含以下日志文件：
+```
+match.log：记录匹配成功的结果。
+unmatch.log：记录匹配失败的结果。
+```
