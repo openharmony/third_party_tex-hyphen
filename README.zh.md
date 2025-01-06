@@ -137,6 +137,29 @@ g++ -g -Wall hyphen_pattern_processor.cpp -o transform
 - ./out/: 输出目录（处理后的文件将存储在此目录中）。  
 
 运行成功后，处理后的.hpb二进制文件将存储在 ./out/ 目录中。
+
+#### 批量编译
+- 依赖：  
+```
+jq：json文件解析工具
+```
+
+- 通过json配置文件[build-tex.json](ohos%2Fbuild%2Fbuild-tex.json)，配置需要编译的文件
+```
+[
+    {
+        "filename": "{{filename}}.tex"
+    }
+]
+```
+filename：指定需要编译的tex文件名，文件须在 [tex](hyph-utf8%2Ftex%2Fgeneric%2Fhyph-utf8%2Fpatterns%2Ftex) 目录下
+
+- 打开终端（或命令提示符），导航到包含 [build.sh](ohos%2Fbuild%2Fbuild.sh) 文件的目录，并运行以下命令来编译代码：
+```
+chmod +x build.sh
+./build.sh
+```
+
 ### 2、通过hpb解析单词断词位置
 #### 编译步骤
 打开终端（或命令提示符），导航到包含 [hyphen_pattern_reader.cpp](ohos%2Fsrc%2Fhyphen-build%2Fhyphen_pattern_reader.cpp) 文件的目录，并运行以下命令来编译代码：
@@ -164,8 +187,8 @@ g++ -g -Wall hyphen_pattern_reader.cpp -o reader
 
 运行成功后，日志中将会输出本次解析的单词断词信息。
 
-### 3、批量验证
-通过[generate_report.py](ohos%2Ftest%2Fgenerate_report.py)python脚本读取[report_config.json](ohos%2Ftest%2Freport_config.json)配置文件，可实现批量校验生成的二进制文件是否有效
+### 3、自动化验证
+通过[generate_report.py](ohos%2Ftest%2Fgenerate_report.py) Python脚本读取[report_config.json](ohos%2Ftest%2Freport_config.json)配置文件，可实现批量校验生成的二进制文件是否有效
 #### 准备
 - Python 3.x
 - transform和reader可执行文件，并将可执行文件放在脚本同一级目录

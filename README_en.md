@@ -137,6 +137,25 @@ Explanation of the command:
 
 After successful execution, the processed files will be stored in the ./out/ directory.
 
+#### Batch Compilation
+- Dependencies:
+```
+jq:JSON file parsing tool
+```
+- Configure the files to be compiled using the JSON configuration file [build-tex.json](ohos%2Fbuild%2Fbuild-tex.json):
+```
+[
+    {
+        "filename": "{{filename}}.tex"
+    }
+]
+```
+filename: Specifies the name of the TeX file to be compiled. The file must be located in the [tex](hyph-utf8%2Ftex%2Fgeneric%2Fhyph-utf8%2Fpatterns%2Ftex) directory.
+- Open a terminal (or command prompt), navigate to the directory containing the [build.sh](ohos%2Fbuild%2Fbuild.sh) file, and run the following commands to compile the code:
+```
+chmod +x build.sh
+./build.sh
+```
 ### 2. Parse Word Hyphenation Positions Using HPB
 #### compilation Steps
 Open a terminal (or command prompt), navigate to the directory containing the [hyphen_pattern_reader.cpp](ohos%2Fsrc%2Fhyphen-build%2Fhyphen_pattern_reader.cpp) file, and run the following command to compile the code:
