@@ -93,7 +93,7 @@ third_party_tex-hyphen
 collaboration/       tex-hyphen官网依赖的js脚本、xml配置文件
 ohos/                OpenHarmony编译文件和hpb二进制文件
 data/                语种库
-docs/                包含项目的文档，详细解释了断词算法和其他相关信息。
+docs/                项目的文档资料
 encoding/            包含编码相关的文件，用于处理不同字符集的编码问题。
 hyph-utf8/           TeX 的断字模式包，提供了以 UTF-8 编码的断字模式
 misc/                en-gb语种断词文件案例
