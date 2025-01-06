@@ -163,7 +163,7 @@ build-tex.json文件中定义了全量支持语种，脚本会默认全量编译
 ```
 [
     {
-        "filename": "example2.tex"
+        "filename": "example1.tex"
     }
 ]
 ```

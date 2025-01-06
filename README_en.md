@@ -161,7 +161,7 @@ To remove the example2 language, modify the file as follows:
 ```
 [
     {
-        "filename": "example2.tex"
+        "filename": "example1.tex"
     }
 ]
 ```
