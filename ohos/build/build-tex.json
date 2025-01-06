@@ -1,8 +1,5 @@
 [
     {
-        "filename": "hyph-en-us.tex"
-    },
-    {
-        "filename": "hyph-en-gb.tex"
+        "filename": "{{filename}}.tex"
     }
 ]
