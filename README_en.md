@@ -146,16 +146,46 @@ jq:JSON file parsing tool
 ```
 [
     {
-        "filename": "{{filename}}.tex"
+        "filename": "example1.tex"
+    },
+    {
+        "filename": "example2.tex"
     }
 ]
 ```
-filename: Specifies the name of the TeX file to be compiled. The file must be located in the [tex](hyph-utf8%2Ftex%2Fgeneric%2Fhyph-utf8%2Fpatterns%2Ftex) directory.
+filename: Specifies the name of the TeX file to be compiled. The file must be located in the [tex](hyph-utf8%2Ftex%2Fgeneric%2Fhyph-utf8%2Fpatterns%2Ftex) directory.  
+
+The build-tex.json file defines all supported languages, and the script will compile all of them by default. Developers can control the addition or removal of languages by modifying build-tex.json.   
+For example:  
+To remove the example2 language, modify the file as follows:
+```
+[
+    {
+        "filename": "example2.tex"
+    }
+]
+```
+To add the example3 language, modify the file as follows:
+```
+[
+    {
+        "filename": "example1.tex"
+    },
+    {
+        "filename": "example2.tex"
+    },
+    {
+        "filename": "example3.tex"
+    }
+]
+```
+
 - Open a terminal (or command prompt), navigate to the directory containing the [build.sh](ohos%2Fbuild%2Fbuild.sh) file, and run the following commands to compile the code:
 ```
 chmod +x build.sh
 ./build.sh
 ```
+After successful compilation, the compiled output will be placed in the ./out_hpb directory.
 ### 2. Parse Word Hyphenation Positions Using HPB
 #### compilation Steps
 Open a terminal (or command prompt), navigate to the directory containing the [hyphen_pattern_reader.cpp](ohos%2Fsrc%2Fhyphen-build%2Fhyphen_pattern_reader.cpp) file, and run the following command to compile the code:

@@ -144,21 +144,50 @@ g++ -g -Wall hyphen_pattern_processor.cpp -o transform
 jq：json文件解析工具
 ```
 
-- 通过json配置文件[build-tex.json](ohos%2Fbuild%2Fbuild-tex.json)，配置需要编译的文件
+- 通过json配置文件[build-tex.json](ohos%2Fbuild%2Fbuild-tex.json)，配置需要编译的文件。
 ```
 [
     {
-        "filename": "{{filename}}.tex"
+        "filename": "example1.tex"
+    },
+    {
+        "filename": "example2.tex"
     }
 ]
 ```
-filename：指定需要编译的tex文件名，文件须在 [tex](hyph-utf8%2Ftex%2Fgeneric%2Fhyph-utf8%2Fpatterns%2Ftex) 目录下
+**filename** ：指定需要编译的tex文件名，文件须在 [tex](hyph-utf8%2Ftex%2Fgeneric%2Fhyph-utf8%2Fpatterns%2Ftex) 目录下  
 
-- 打开终端（或命令提示符），导航到包含 [build.sh](ohos%2Fbuild%2Fbuild.sh) 文件的目录，并运行以下命令来编译代码：
+build-tex.json文件中定义了全量支持语种，脚本会默认全量编译。开发者可通过修改build-tex.json来控制新增或者删除语种。  
+例如：  
+需要移除example2语种，修改结果如下：
+```
+[
+    {
+        "filename": "example2.tex"
+    }
+]
+```
+需要新增example3语种，修改结果如下：
+```
+[
+    {
+        "filename": "example1.tex"
+    },
+    {
+        "filename": "example2.tex"
+    },
+    {
+        "filename": "example3.tex"
+    }
+]
+```
+
+- 打开终端（或命令提示符），导航到包含 [build.sh](ohos%2Fbuild%2Fbuild.sh) 文件的目录，并运行以下命令来编译代码  
 ```
 chmod +x build.sh
 ./build.sh
 ```
+编译成功后，编译产物将会放置在./out_hpb目录下
 
 ### 2、通过hpb解析单词断词位置
 #### 编译步骤
