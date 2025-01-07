@@ -12,6 +12,7 @@
 # limitations under the License.
 
 hyphen_root = "//third_party/tex-hyphen"
+hyphen_tex_root = "//third_party/tex-hyphen/hyph-utf8/tex/generic/hyph-utf8/patterns/tex"
 
 hpb_list = [
     {

@@ -18,7 +18,9 @@
     "rom": "",
     "ram": "",
     "deps": {
-      "components": [],
+      "components": [
+        "icu"
+      ],
       "third_party": []
     },
     "build": {
