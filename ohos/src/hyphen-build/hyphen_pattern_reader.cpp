@@ -379,30 +379,13 @@ bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, const size_t
 
 void PrintResult(const vector<uint8_t>& result, const vector<uint16_t>& target)
 {
-    cout << "result size: " << result.size() << " while expecting " << target.size() << endl;
+    cout << dec << "result size: " << result.size() << " while expecting " << target.size() << endl;
     if (result.size() <= target.size() + 1) {
         size_t i = 0;
         for (auto bp : result) {
             cout << hex << static_cast<int>(target[i++]) << ": " << to_string(bp) << endl;
         }
     }
-}
-} // namespace OHOS::Hyphenate
-
-constexpr size_t ARG_NUM = 2;
-
-std::vector<uint16_t> CheckArgs(int argc, char** argv)
-{
-    std::vector<uint16_t> target;
-    if (argc != 3) { // 3: valid argument number
-        cout << "usage: './hyphen hyph-en-us.hpb <mytestword>' " << endl;
-        return target;
-    }
-    target = OHOS::Hyphenate::GetInputWord(argv[ARG_NUM]);
-    if (target.empty()) {
-        cout << "usage: './hyphen hyph-en-us.hpb <mytestword>' " << endl;
-    }
-    return target;
 }
 
 bool InitializeCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, char* filePath)
@@ -456,6 +439,38 @@ void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
     }
 }
 
+int32_t HyphenReader::Read(char* filePath, const std::vector<uint16_t>& utf16Target)
+{
+    CodeInfo codeInfo;
+    if (!InitializeCodeInfo(codeInfo, filePath)) {
+        return FAILED;
+    }
+
+    std::vector<uint8_t> result(utf16Target.size(), 0);
+    ProcessCodeInfo(codeInfo, utf16Target, result);
+
+    codeInfo.ClearResource();
+    PrintResult(result, utf16Target);
+    return SUCCEED;
+}
+} // namespace OHOS::Hyphenate
+
+constexpr size_t ARG_NUM = 2;
+
+std::vector<uint16_t> CheckArgs(int argc, char** argv)
+{
+    std::vector<uint16_t> target;
+    if (argc != 3) { // 3: valid argument number
+        cout << "usage: './hyphen hyph-en-us.hpb <mytestword>' " << endl;
+        return target;
+    }
+    target = OHOS::Hyphenate::GetInputWord(argv[ARG_NUM]);
+    if (target.empty()) {
+        cout << "usage: './hyphen hyph-en-us.hpb <mytestword>' " << endl;
+    }
+    return target;
+}
+
 int main(int argc, char** argv)
 {
     std::vector<uint16_t> target = CheckArgs(argc, argv);
@@ -463,15 +478,6 @@ int main(int argc, char** argv)
         return FAILED;
     }
 
-    OHOS::Hyphenate::CodeInfo codeInfo;
-    if (!InitializeCodeInfo(codeInfo, argv[1])) {
-        return FAILED;
-    }
-
-    std::vector<uint8_t> result(target.size(), 0);
-    ProcessCodeInfo(codeInfo, target, result);
-
-    codeInfo.ClearResource();
-    OHOS::Hyphenate::PrintResult(result, target);
-    return SUCCEED;
+    OHOS::Hyphenate::HyphenReader hyphenReader;
+    return hyphenReader.Read(argv[1], target);
 }

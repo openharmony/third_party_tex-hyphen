@@ -23,7 +23,7 @@
     },
     "build": {
       "sub_component": [
-        "//third_party/tex-hyphen:shared_hpb"
+        "//third_party/tex-hyphen:tex_hyphen_hpb"
       ],
       "inner_kits": [],
       "test": []

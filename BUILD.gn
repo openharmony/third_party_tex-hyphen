@@ -27,15 +27,9 @@ foreach(hpb, hpb_list) {
   dep_list += [ language ]
 }
 
-group("hpb_group") {
+group("tex_hyphen_hpb") {
   deps = []
   foreach(dep, dep_list) {
     deps += [ ":${dep}" ]
   }
-}
-
-ohos_shared_library("shared_hpb") {
-  install_enable = true
-  part_name = "tex-hyphen"
-  deps = [ ":hpb_group" ]
 }
