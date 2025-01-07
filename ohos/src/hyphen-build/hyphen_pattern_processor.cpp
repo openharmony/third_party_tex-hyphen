@@ -408,11 +408,11 @@ static void ProcessLine(const string& line, vector<string>*& current, vector<str
     }
 }
 
-static int32_t ResolveSectionsFromFile(const char* fileName, map<string, vector<string>>& sections)
+static int32_t ResolveSectionsFromFile(std::string fileName, map<string, vector<string>>& sections)
 {
-    ifstream input(fileName);
+    ifstream input(fileName.c_str());
     if (!input.good()) {
-        cerr << "could not open '" << fileName << "' for reading" << endl;
+        cerr << "could not open '" << fileName.c_str() << "' for reading" << endl;
         return FAILED;
     }
 
@@ -626,7 +626,7 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
                                      uint32_t& tableOffset, vector<PathOffset>& offsets)
 {
     vector<Path*> bigOnes;
-    bool hasDirect {false};
+    bool hasDirect{false};
     for (auto& leave : leaves) {
         for (auto& path : leave.second.paths) {
             if (path.first < range.minimumCp || path.first > range.maximumCp) {
@@ -742,7 +742,6 @@ static void WriteOffestsToOutFile(ofstream& out, WriteOffestsParams& params, uin
         Path::WritePacked(dummy, out);
     }
 }
-} // namespace OHOS::Hyphenate
 
 std::string GetFileNameWithoutSuffix(const std::string& filePath)
 {
@@ -762,37 +761,29 @@ void CreateDirectory(const std::string& folderPath)
     }
 }
 
-int main(int argc, char** argv)
+void HyphenProcessor::Proccess(std::string& filePath, std::string& outFilePath)
 {
-    if (argc != 3) { // 3: valid argument number
-        cout << "usage: './transform hyph-en-us.tex ./out/'" << endl;
-        return FAILED;
-    }
-
     map<string, vector<string>> sections;
-    if (OHOS::Hyphenate::ResolveSectionsFromFile(argv[1], sections)) {
-        return FAILED;
+    if (ResolveSectionsFromFile(filePath, sections)) {
+        return;
     }
 
     vector<vector<uint16_t>> utf16Patterns;
-    OHOS::Hyphenate::ResolvePatternsFromSections(sections, utf16Patterns);
+    ResolvePatternsFromSections(sections, utf16Patterns);
 
-    map<uint16_t, OHOS::Hyphenate::PatternHolder> leaves;
+    map<uint16_t, PatternHolder> leaves;
     ResolveLeavesFromPatterns(utf16Patterns, leaves);
 
-    OHOS::Hyphenate::CpRange range = {0, 0};
+    CpRange range = {0, 0};
     int countPat = 0;
     BreakLeavesIntoPaths(leaves, range, countPat);
 
-    // open output
-    string ofName = argv[1];
-    string outFilePath = argv[2];
     CreateDirectory(outFilePath);
-    string filename = GetFileNameWithoutSuffix(ofName);
+    string filename = GetFileNameWithoutSuffix(filePath);
     std::cout << "output file: " << (outFilePath + "/" + filename + ".hpb") << std::endl;
     ofstream out((outFilePath + "/" + filename + ".hpb"), ios::binary);
-    uint32_t tableOffset = OHOS::Hyphenate::InitOutFileHead(out);
-    vector<OHOS::Hyphenate::PathOffset> offsets;
+    uint32_t tableOffset = InitOutFileHead(out);
+    vector<PathOffset> offsets;
     uint32_t toc = 0;
 
     bool hasDirect = WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
@@ -800,14 +791,30 @@ int main(int argc, char** argv)
     // and main table offsets
     cout << "Produced " << offsets.size() << " paths with z: " << toc << endl;
 
-    uint32_t currentEnd = OHOS::Hyphenate::FULL_TALBLE * 2; // initial offset (in 16 bites)
-    OHOS::Hyphenate::Path::WritePacked(currentEnd, out);
+    uint32_t currentEnd = FULL_TALBLE * 2; // initial offset (in 16 bites)
+    Path::WritePacked(currentEnd, out);
 
     uint32_t mappingsPos = 0;
-    OHOS::Hyphenate::WriteOffestsParams writeOffestsParams(offsets, mappingsPos, range);
+    WriteOffestsParams writeOffestsParams(offsets, mappingsPos, range);
     WriteOffestsToOutFile(out, writeOffestsParams, currentEnd, hasDirect);
-    if (OHOS::Hyphenate::FormatOutFileHead(out, writeOffestsParams, toc) != SUCCEED) {
+    if (FormatOutFileHead(out, writeOffestsParams, toc) != SUCCEED) {
         cout << "DONE: With " << to_string(countPat) << "patterns (8bit)" << endl;
     }
+}
+} // namespace OHOS::Hyphenate
+
+int main(int argc, char** argv)
+{
+    if (argc != 3) { // 3: valid argument number
+        cout << "usage: './transform hyph-en-us.tex ./out/'" << endl;
+        return FAILED;
+    }
+
+    // open output
+    string filePath = argv[1];
+    string outFilePath = argv[2];
+
+    OHOS::Hyphenate::HyphenProcessor hyphenProcessor;
+    hyphenProcessor.Proccess(filePath, outFilePath);
     return SUCCEED;
 }
