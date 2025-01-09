@@ -58,6 +58,6 @@ foreach(tex_source, tex_source_config) {
   dep_list += [ ":" + target_name ]
 }
 
-group("tex_hyphen_hpb") {
+group("hyphenation_patterns") {
   deps = dep_list
 }

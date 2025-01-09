@@ -25,7 +25,7 @@
     },
     "build": {
       "sub_component": [
-        "//third_party/tex-hyphen:tex_hyphen_hpb"
+        "//third_party/tex-hyphen:hyphenation_patterns"
       ],
       "inner_kits": [],
       "test": []
