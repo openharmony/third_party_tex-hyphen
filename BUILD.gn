@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 import("//third_party/tex-hyphen/tex-hyphen.gni")
 
 ohos_executable("hpb_transform") {
+  cflags_cc = [ "-std=c++17" ]
   output_name = "hpb_transform"
   part_name = "tex-hyphen"
   install_enable = false
