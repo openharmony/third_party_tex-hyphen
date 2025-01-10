@@ -753,7 +753,7 @@ std::string GetFileNameWithoutSuffix(const std::string& filePath)
 
 void CreateDirectory(const std::string& folderPath)
 {
-    if (mkdir(folderPath.c_str(), 0755) == 0) {
+    if (mkdir(folderPath.c_str(), 0755) == 0) { // 0755 means the owner has read, write, and execute permissions,
         std::cout << "Directory created successfully: " << folderPath << std::endl;
     } else {
         std::cout << "Directory already exists: " << folderPath << std::endl;
