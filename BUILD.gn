@@ -49,7 +49,6 @@ foreach(tex_source, tex_source_config) {
     module_install_dir = "usr/ohos_hyphen_data"
     subsystem_name = "thirdparty"
     part_name = "tex-hyphen"
-    output = "$target_name"
     deps = [ ":tex_hyphen_hpb_action_$language" ]
   }
   dep_list += [ ":" + target_name ]
