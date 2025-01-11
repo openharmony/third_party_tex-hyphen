@@ -19,7 +19,7 @@ The tex directory contains multiple hyphenation patterns from TeX hyphenation pa
 * MPL 1.1
 * BSD 3
 
-Languages used in OHOS:
+Languages used in OHOS,the following languages all use a user-friendly open-source license.:
 * be - Belarusian
 * cs - Czech
 * cy - Welsh

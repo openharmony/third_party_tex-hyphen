@@ -20,7 +20,7 @@ tex目录下包含了多个来自TeX hyphenations patterns的连字符规则，�
 * MPL 1.1
 * BSD 3
 
-OHOS中使用以下语种资源：
+OHOS中使用以下语种资源，以下语种均使用友好型开源协议：
 * be - 白俄罗斯语（Belarusian）
 * cs - 捷克语（Czech）
 * cy - 威尔士语（Welsh）

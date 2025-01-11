@@ -17,13 +17,13 @@
 
 #include <fstream>
 #include <iostream>
-#include <filesystem>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <map>
 #include <unicode/utf.h>
 #include <unicode/utf8.h>
 
 using namespace std;
-namespace fs = std::filesystem;
 
 namespace OHOS::Hyphenate {
 // upper limit for direct pointing arrays
@@ -753,9 +753,8 @@ std::string GetFileNameWithoutSuffix(const std::string& filePath)
 
 void CreateDirectory(const std::string& folderPath)
 {
-    if (!fs::exists(folderPath)) {
-        fs::create_directory(folderPath);
-        std::cout << "Directory created: " << folderPath << std::endl;
+    if (mkdir(folderPath.c_str(), 0755) == 0) { // 0755 means the owner has read, write, and execute permissions,
+        std::cout << "Directory created successfully: " << folderPath << std::endl;
     } else {
         std::cout << "Directory already exists: " << folderPath << std::endl;
     }
