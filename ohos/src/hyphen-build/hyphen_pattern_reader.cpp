@@ -242,7 +242,7 @@ void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, const size_t&
     auto p = reinterpret_cast<const Pattern*>(fStaticOffset + fNextOffset);
     uint16_t codeValue = p->code;
     // if the code point is defined, the sub index refers to code next to this node
-    if (codeValue) {
+    if (codeValue > 0) {
         if (codeValue != target[offset - fIndex]) {
             cout << "break on pattern: " << hex << codeValue << endl;
             return;
@@ -388,7 +388,7 @@ void PrintResult(const vector<uint8_t>& result, const vector<uint16_t>& target)
     }
 }
 
-bool InitializeCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, char* filePath)
+bool InitializeCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const char* filePath)
 {
     if (codeInfo.OpenPatFile(filePath) != SUCCEED) {
         return false;
@@ -439,7 +439,7 @@ void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
     }
 }
 
-int32_t HyphenReader::Read(char* filePath, const std::vector<uint16_t>& utf16Target)
+int32_t HyphenReader::Read(const char* filePath, const std::vector<uint16_t>& utf16Target) const
 {
     CodeInfo codeInfo;
     if (!InitializeCodeInfo(codeInfo, filePath)) {
@@ -455,6 +455,7 @@ int32_t HyphenReader::Read(char* filePath, const std::vector<uint16_t>& utf16Tar
 }
 } // namespace OHOS::Hyphenate
 
+namespace {
 constexpr size_t ARG_NUM = 2;
 
 std::vector<uint16_t> CheckArgs(int argc, char** argv)
@@ -470,6 +471,7 @@ std::vector<uint16_t> CheckArgs(int argc, char** argv)
     }
     return target;
 }
+} // namespace
 
 int main(int argc, char** argv)
 {

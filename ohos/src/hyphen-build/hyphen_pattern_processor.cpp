@@ -15,6 +15,8 @@
 
 #include "hyphen_pattern.h"
 
+#include <cstddef>
+#include <climits>
 #include <fstream>
 #include <iostream>
 #include <sys/stat.h>
@@ -34,7 +36,7 @@ vector<uint16_t> ConvertToUtf16(const string& utf8Str)
     int32_t i = 0;
     uint32_t c = 0;
     vector<uint16_t> target;
-    const int32_t textLength = utf8Str.size();
+    const int32_t textLength = static_cast<int32_t>(utf8Str.size());
 
     while (i < textLength) {
         U8_NEXT(utf8Str.c_str(), i, textLength, c);
@@ -155,7 +157,7 @@ struct Path {
             out.write(reinterpret_cast<const char*>(&size), sizeof(size));
         }
 
-        if (data.size() & 0x1) {
+        if ((data.size() & 0x1) != 0) {
             data.push_back(0);
         }
 
@@ -171,7 +173,7 @@ struct Path {
         uint16_t size = data.size();
         out.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
-        if (data.size() & ALIGN_4BYTES) {
+        if ((data.size() & ALIGN_4BYTES) != 0) {
             cerr << "### uint8_t vectors should be aligned in 4 bytes !!!" << endl;
             size = size & ~ALIGN_4BYTES;
         }
@@ -193,12 +195,7 @@ struct Path {
     // so we get two first bits in the array for path type
     // we have two bytes on the offset arrays
     // for these
-    enum class PathType : uint8_t {
-        PATTERN = 0,
-        LINEAR = 1,
-        PAIRS = 2,
-        DIRECT = 3
-    };
+    enum class PathType : uint8_t { PATTERN = 0, LINEAR = 1, PAIRS = 2, DIRECT = 3 };
 
     static void WritePackedLine(const Path& pathSrc, ostream& out, PathType& type)
     {
@@ -254,17 +251,17 @@ struct Path {
 
         // kind of laymans conditional breakpoint, could be removed completely
         if (breakForCheck) {
-            cout << "### raw 16-bit offset: " << (out.tellp() >> 1) << endl;
+            cout << "### raw 16-bit offset: " << (static_cast<uint32_t>(out.tellp()) >> 1) << endl;
         }
 
         // store the current offset
-        uint32_t pos = out.tellp();
+        uint32_t pos = static_cast<uint32_t>(out.tellp());
 
         // check if we are linear or should write a table
         size_t count = 0;
         if (IsLinear(count)) {
             WritePackedLine(*this, out, type);
-        } else if ((paths.size() < (size_t)(maximumCP - minimumCP) / HYPHEN_BASE_CODE_SHIFT)
+        } else if ((paths.size() < static_cast<size_t>(maximumCP - minimumCP) / HYPHEN_BASE_CODE_SHIFT)
                    || haveNoncontiguousChildren) {
             // Using dense table, i.e. value pairs
             // we need to use this also when the code is larger than ff
@@ -273,14 +270,14 @@ struct Path {
                 output.push_back(path.first);
                 output.push_back(path.second.Write(out, offset));
             }
-            pos = out.tellp(); // our header is after children data
+            pos = static_cast<uint32_t>(out.tellp()); // our header is after children data
             type = PathType::PAIRS;
             WritePacked(output, out);
         } else {
             // Direct pointing, initialize full mapping table
             vector<uint16_t> output;
             output.resize(maximumCP - minimumCP, 0);
-            if (output.size() & 0x1) {
+            if ((output.size() & 0x1) != 0) {
                 output.push_back(0); // pad
             }
 
@@ -290,11 +287,11 @@ struct Path {
                 if (path.first >= minimumCP && path.first <= maximumCP) {
                     output[path.first - minimumCP] = path.second.Write(out, offset);
                 } else {
-                    cerr << " ### Encountered distinct code point 0x'" << hex << (int)path.first
+                    cerr << " ### Encountered distinct code point 0x'" << hex << static_cast<int>(path.first)
                          << " when writing direct array" << endl;
                 }
             }
-            pos = out.tellp(); // children first
+            pos = static_cast<uint32_t>(out.tellp()); // children first
             WritePacked(output, out, false);
         }
 
@@ -306,7 +303,7 @@ struct Path {
         }
 
         if (endPos) {
-            *endPos = out.tellp() >> 1;
+            *endPos = static_cast<uint32_t>(out.tellp()) >> 1;
         }
 
         return (((pos >> 1) - offset) | (static_cast<uint32_t>(type) << SHIFT_BITS_14));
@@ -410,9 +407,15 @@ static void ProcessLine(const string& line, vector<string>*& current, vector<str
 
 static int32_t ResolveSectionsFromFile(std::string fileName, map<string, vector<string>>& sections)
 {
-    ifstream input(fileName.c_str());
+    char resolvedPath[PATH_MAX] = {0};
+    if (fileName.size() > PATH_MAX || realpath(fileName.c_str(), resolvedPath) == nullptr) {
+        cout << "file name exception" << endl;
+        return FAILED;
+    }
+
+    ifstream input(resolvedPath);
     if (!input.good()) {
-        cerr << "could not open '" << fileName.c_str() << "' for reading" << endl;
+        cerr << "could not open '" << resolvedPath << "' for reading" << endl;
         return FAILED;
     }
 
@@ -491,14 +494,14 @@ static void ProcessPattern(const vector<uint16_t>& pattern, vector<uint16_t>& co
 
 static void PadRules(vector<uint8_t>& rules)
 {
-    while (rules.size() % PADDING_SIZE) {
+    while ((rules.size() % PADDING_SIZE) != 0) {
         if (rules.back() == 0) {
             rules.pop_back();
         } else {
             break;
         }
     }
-    while (rules.size() % PADDING_SIZE) {
+    while ((rules.size() % PADDING_SIZE) != 0) {
         rules.push_back(0);
     }
 }
@@ -552,7 +555,7 @@ static void BreakLeavesIntoPaths(map<uint16_t, PatternHolder>& leaves, CpRange& 
 #ifdef VERBOSE_PATTERNS
             cout << "    '";
             for (const auto& digit : pat.first) {
-                cout << "'0x" << hex << (int)digit << "' ";
+                cout << "'0x" << hex << static_cast<int>(digit) << "' ";
             }
             cout << "' size: " << pat.second.size() << endl;
             cout << "       ";
@@ -622,7 +625,7 @@ static int32_t FormatOutFileHead(ofstream& out, const WriteOffestsParams& params
     return SUCCEED;
 }
 
-static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRange& range, ofstream& out,
+static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const CpRange& range, ofstream& out,
                                      uint32_t& tableOffset, vector<PathOffset>& offsets)
 {
     vector<Path*> bigOnes;
@@ -638,7 +641,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
             uint16_t offset = value & 0x3fff;
             uint32_t type = value & 0x0000c000;
             uint16_t code = path.first;
-            cout << "direct:" << hex << (int)code << ": " << tableOffset << " : " << end << " type " << type << endl;
+            cout << "direct:" << hex << static_cast<int>(code) << ": " << tableOffset << " : " << end << " type "
+                 << type << endl;
             tableOffset = end;
             offsets.push_back(PathOffset(offset, end, type, code));
             hasDirect = true;
@@ -652,8 +656,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
         uint16_t offset = value & 0x3fff;
         uint32_t type = value & 0x0000c000;
         uint16_t code = path->code;
-        cout << "distinct: 0x" << hex << (int)code << ": " << hex << tableOffset << " : " << end << " type " << type
-             << dec << endl;
+        cout << "distinct: 0x" << hex << static_cast<int>(code) << ": " << hex << tableOffset << " : " << end
+             << " type " << type << dec << endl;
         tableOffset = end;
         offsets.push_back(PathOffset(offset, end, type, code));
     }
@@ -683,7 +687,7 @@ void ProcessDirectPointingValues(std::vector<PathOffset>::const_iterator& lastEf
         }
         lastEffectiveIterator = iterator;
         uint32_t type = static_cast<uint32_t>(iterator->type);
-        uint32_t bytes = iterator->offset | type << 16;
+        uint32_t bytes = static_cast<uint32_t>(iterator->offset) | type << 16;
         currentEnd = iterator->end;
         std::cout << "Direct: " << std::hex << "o: 0x" << iterator->offset << " e: 0x" << iterator->end << " t: 0x"
                   << type << " c: 0x" << bytes << std::endl;
@@ -703,7 +707,7 @@ void ProcessDistinctCodepoints(std::vector<PathOffset>::const_iterator& lastEffe
         mappings.push_back(lastEffectiveIterator->code);
         mappings.push_back(pos++);
         uint32_t type = static_cast<uint32_t>(lastEffectiveIterator->type);
-        uint32_t bytes = lastEffectiveIterator->offset | type << 16;
+        uint32_t bytes = static_cast<uint32_t>(lastEffectiveIterator->offset) | type << 16;
         currentEnd = lastEffectiveIterator->end;
         std::cout << "Distinct: " << std::hex << "code: 0x" << static_cast<int>(lastEffectiveIterator->code) << " o: 0x"
                   << lastEffectiveIterator->offset << " e: 0x" << lastEffectiveIterator->end << " t: " << type
@@ -727,13 +731,11 @@ static void WriteOffestsToOutFile(ofstream& out, WriteOffestsParams& params, uin
     }
 
     if (lastEffectiveIterator != params.fOffsets.cend()) {
-        // Process direct pointing values with holes (to pad the missing entries)
-
         // distinct codepoints that cannot be addressed by flat array index
         ProcessDistinctCodepoints(lastEffectiveIterator, out, params, mappings, currentEnd);
     }
 
-    params.fMappingsPos = out.tellp();
+    params.fMappingsPos = static_cast<uint32_t>(out.tellp());
 
     if (!mappings.empty()) {
         Path::WritePacked(mappings, out);
@@ -760,12 +762,22 @@ void CreateDirectory(const std::string& folderPath)
     }
 }
 
-void HyphenProcessor::Proccess(std::string& filePath, std::string& outFilePath)
+void HyphenProcessor::Proccess(const std::string& filePath, const std::string& outFilePath) const
 {
     map<string, vector<string>> sections;
-    if (ResolveSectionsFromFile(filePath, sections)) {
+    if (ResolveSectionsFromFile(filePath, sections) != SUCCEED) {
         return;
     }
+
+    char resolvedPath[PATH_MAX] = {0};
+    if (outFilePath.size() > PATH_MAX) {
+        cout << "The file name is too long" << endl;
+        return;
+    }
+    if (realpath(outFilePath.c_str(), resolvedPath) == nullptr) {
+        CreateDirectory(resolvedPath);
+    }
+    std::string outFile(resolvedPath);
 
     vector<vector<uint16_t>> utf16Patterns;
     ResolvePatternsFromSections(sections, utf16Patterns);
@@ -777,16 +789,15 @@ void HyphenProcessor::Proccess(std::string& filePath, std::string& outFilePath)
     int countPat = 0;
     BreakLeavesIntoPaths(leaves, range, countPat);
 
-    CreateDirectory(outFilePath);
     string filename = GetFileNameWithoutSuffix(filePath);
-    std::cout << "output file: " << (outFilePath + "/" + filename + ".hpb") << std::endl;
-    ofstream out((outFilePath + "/" + filename + ".hpb"), ios::binary);
+    std::cout << "output file: " << (outFile + "/" + filename + ".hpb") << std::endl;
+    ofstream out((outFile + "/" + filename + ".hpb"), ios::binary);
     uint32_t tableOffset = InitOutFileHead(out);
     vector<PathOffset> offsets;
     uint32_t toc = 0;
 
     bool hasDirect = WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
-    toc = out.tellp();
+    toc = static_cast<uint32_t>(out.tellp());
     // and main table offsets
     cout << "Produced " << offsets.size() << " paths with z: " << toc << endl;
 
