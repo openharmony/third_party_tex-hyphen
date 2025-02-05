@@ -231,8 +231,8 @@ int32_t CodeInfo::GetCodeInfo(uint16_t code)
     fNextOffset = (initialValue & 0x3fffffff);
     fType = static_cast<PathType>(initialValue >> SHIFT_BITS_30);
 
-    cout << hex << baseOffset << " top level code: 0x" << hex << static_cast<int>(code) << " starting with offset: 0x"
-         << hex << fOffset << " table-offset 0x" << fNextOffset << endl;
+    cout << hex << baseOffset << " top level code: 0x" << hex << static_cast<int>(code) <<
+        " starting with offset: 0x" << hex << fOffset << " table-offset 0x" << fNextOffset << endl;
     return SUCCEED;
 }
 
@@ -306,8 +306,8 @@ void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, const size_t& 
     bool match = true;
     //     check the rest of the string
     for (auto j = 0; j < count; j++) {
-        cout << "    linear index: " << j << " value: " << hex << static_cast<int>(p->codes[j]) << " vs "
-             << static_cast<int>(target[offset - fIndex]) << endl;
+        cout << "    linear index: " << j << " value: " << hex << static_cast<int>(p->codes[j]) << " vs " <<
+            static_cast<int>(target[offset - fIndex]) << endl;
         if (p->codes[j] != target[offset - fIndex]) {
             match = false;
             return;
@@ -320,12 +320,12 @@ void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, const size_t& 
     if (match) {
         fNextOffset += count + (count & 0x1);
         auto matchPattern = reinterpret_cast<const Pattern*>(fStaticOffset + fNextOffset);
-        cout << "    found match, needed to pad " << static_cast<int>(count & 0x1)
-             << " pat count: " << static_cast<int>(matchPattern->count) << endl;
+        cout << "    found match, needed to pad " << static_cast<int>(count & 0x1) <<
+            " pat count: " << static_cast<int>(matchPattern->count) << endl;
         size_t i = 0;
         for (size_t j = offset - origPos - count; j <= offset && i < matchPattern->count; j++) {
-            cout << "       pattern index: " << i << " value: " << hex << static_cast<int>(matchPattern->patterns[i])
-                 << endl;
+            cout << "       pattern index: " << i << " value: " << hex << static_cast<int>(matchPattern->patterns[i]) <<
+                endl;
             result[j] = std::max(result[j], matchPattern->patterns[i]);
             i++;
         }
@@ -344,18 +344,18 @@ bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, const size_t
     auto p = reinterpret_cast<const ArrayOf16bits*>(fStaticOffset + fNextOffset);
     uint16_t count = p->count;
     fIndex++;
-    cout << "  continue to value pairs with size: " << count << " and code '"
-         << static_cast<int>(target[offset - fIndex]) << "'" << endl;
+    cout << "  continue to value pairs with size: " << count << " and code '" <<
+        static_cast<int>(target[offset - fIndex]) << "'" << endl;
 
     //     check pairs, array is sorted (but small)
     bool match = false;
     for (size_t j = 0; j < count; j += HYPHEN_BASE_CODE_SHIFT) {
-        cout << "    checking pair: " << j << " value: " << hex << static_cast<int>(p->codes[j]) << " vs "
-             << static_cast<int>(target[offset - fIndex]) << endl;
+        cout << "    checking pair: " << j << " value: " << hex << static_cast<int>(p->codes[j]) << " vs " <<
+            static_cast<int>(target[offset - fIndex]) << endl;
         if (p->codes[j] == target[offset - fIndex]) {
             fCode = target[offset - fIndex];
-            cout << "      new value pair in : 0x" << j << " with code 0x" << hex << static_cast<int>(fCode) << "'"
-                 << endl;
+            cout << "      new value pair in : 0x" << j << " with code 0x" << hex << static_cast<int>(fCode) << "'" <<
+                endl;
             fOffset = fHeader->CodeOffset(fCode);
             if (fHeader->minCp != fHeader->maxCp && fOffset > fHeader->maxCp) {
                 cout << "# break loop on pairs" << endl;
@@ -405,8 +405,8 @@ void ProcessCodeLoop(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
 {
     bool continueLoop = true;
     while (continueLoop) {
-        std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset
-                  << " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
+        std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset <<
+            " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
 
         if (codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN) {
             codeInfo.ProcessPattern(target, i, result);

@@ -287,8 +287,8 @@ struct Path {
                 if (path.first >= minimumCP && path.first <= maximumCP) {
                     output[path.first - minimumCP] = path.second.Write(out, offset);
                 } else {
-                    cerr << " ### Encountered distinct code point 0x'" << hex << static_cast<int>(path.first)
-                         << " when writing direct array" << endl;
+                    cerr << " ### Encountered distinct code point 0x'" << hex << static_cast<int>(path.first) <<
+                        " when writing direct array" << endl;
                 }
             }
             pos = static_cast<uint32_t>(out.tellp()); // children first
@@ -297,8 +297,8 @@ struct Path {
 
         // return overall offset
         if (((pos >> 1) - offset) > 0x3fff) {
-            cerr << " ### Cannot fit offset " << pos << ":" << (pos / HYPHEN_BASE_CODE_SHIFT - offset)
-                 << " into 14 bits, need to redesign !!!!" << endl;
+            cerr << " ### Cannot fit offset " << pos << ":" << (pos / HYPHEN_BASE_CODE_SHIFT - offset) <<
+                " into 14 bits, need to redesign !!!!" << endl;
             pos = offset;
         }
 
@@ -405,10 +405,14 @@ static void ProcessLine(const string& line, vector<string>*& current, vector<str
     }
 }
 
-static int32_t ResolveSectionsFromFile(std::string fileName, map<string, vector<string>>& sections)
+static int32_t ResolveSectionsFromFile(const std::string& fileName, map<string, vector<string>>& sections)
 {
     char resolvedPath[PATH_MAX] = {0};
-    if (fileName.size() > PATH_MAX || realpath(fileName.c_str(), resolvedPath) == nullptr) {
+    if (fileName.size() > PATH_MAX) {
+        cout << "The file name is too long" << endl;
+        return FAILED;
+    }
+    if (realpath(fileName.c_str(), resolvedPath) == nullptr) {
         cout << "file name exception" << endl;
         return FAILED;
     }
@@ -641,8 +645,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const
             uint16_t offset = value & 0x3fff;
             uint32_t type = value & 0x0000c000;
             uint16_t code = path.first;
-            cout << "direct:" << hex << static_cast<int>(code) << ": " << tableOffset << " : " << end << " type "
-                 << type << endl;
+            cout << "direct:" << hex << static_cast<int>(code) << ": " << tableOffset << " : " << end << " type " <<
+                type << endl;
             tableOffset = end;
             offsets.push_back(PathOffset(offset, end, type, code));
             hasDirect = true;
@@ -656,8 +660,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const
         uint16_t offset = value & 0x3fff;
         uint32_t type = value & 0x0000c000;
         uint16_t code = path->code;
-        cout << "distinct: 0x" << hex << static_cast<int>(code) << ": " << hex << tableOffset << " : " << end
-             << " type " << type << dec << endl;
+        cout << "distinct: 0x" << hex << static_cast<int>(code) << ": " << hex << tableOffset << " : " << end <<
+            " type " << type << dec << endl;
         tableOffset = end;
         offsets.push_back(PathOffset(offset, end, type, code));
     }
@@ -689,8 +693,8 @@ void ProcessDirectPointingValues(std::vector<PathOffset>::const_iterator& lastEf
         uint32_t type = static_cast<uint32_t>(iterator->type);
         uint32_t bytes = static_cast<uint32_t>(iterator->offset) | type << 16;
         currentEnd = iterator->end;
-        std::cout << "Direct: " << std::hex << "o: 0x" << iterator->offset << " e: 0x" << iterator->end << " t: 0x"
-                  << type << " c: 0x" << bytes << std::endl;
+        std::cout << "Direct: " << std::hex << "o: 0x" << iterator->offset << " e: 0x" << iterator->end << " t: 0x" <<
+            type << " c: 0x" << bytes << std::endl;
         Path::WritePacked(bytes, out);
         Path::WritePacked(currentEnd, out);
     }
@@ -709,9 +713,9 @@ void ProcessDistinctCodepoints(std::vector<PathOffset>::const_iterator& lastEffe
         uint32_t type = static_cast<uint32_t>(lastEffectiveIterator->type);
         uint32_t bytes = static_cast<uint32_t>(lastEffectiveIterator->offset) | type << 16;
         currentEnd = lastEffectiveIterator->end;
-        std::cout << "Distinct: " << std::hex << "code: 0x" << static_cast<int>(lastEffectiveIterator->code) << " o: 0x"
-                  << lastEffectiveIterator->offset << " e: 0x" << lastEffectiveIterator->end << " t: " << type
-                  << " c: 0x" << bytes << std::endl;
+        std::cout << "Distinct: " << std::hex << "code: 0x" << static_cast<int>(lastEffectiveIterator->code) <<
+            " o: 0x" << lastEffectiveIterator->offset << " e: 0x" << lastEffectiveIterator->end << " t: " << type <<
+            " c: 0x" << bytes << std::endl;
         Path::WritePacked(bytes, out);
         Path::WritePacked(currentEnd, out);
     }
