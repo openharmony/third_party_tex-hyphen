@@ -15,21 +15,21 @@
 import sys
 import subprocess
 import os
-import json
+
 
 def run_command(command):
-    result = subprocess.run(command, shell=True, capture_output=True)
+    result = subprocess.run(command, shell=False, capture_output=True)
     return result.stdout, result.stderr, result.returncode
 
+
 def main():
-    if len(sys.argv) != 5:
-        print("Usage: python generate_hpb.py <hpb_transform_exe> <hyphen_root> <tex_file_path> <output_hpb_file>")
+    if len(sys.argv) != 4:
+        print("Usage: python generate_hpb.py <hpb_transform_exe> <tex_file_path> <output_hpb_file>")
         sys.exit(1)
 
     hpb_transform_exe = sys.argv[1]
-    hyphen_root = sys.argv[2]
-    tex_file_path = sys.argv[3]
-    output_hpb_file = sys.argv[4]
+    tex_file_path = sys.argv[2]
+    output_hpb_file = sys.argv[3]
 
     # 检查并创建输出文件夹
     output_dir = os.path.dirname(output_hpb_file)
@@ -38,8 +38,9 @@ def main():
         print(f"Created directory: {output_dir}")
 
     # 创建命令
-    command = f"{hpb_transform_exe} {tex_file_path} {output_hpb_file}"
-    print(f"hpy_command: {command}")
+    command_str = f"{hpb_transform_exe} {tex_file_path} {output_hpb_file}"
+    command = [hpb_transform_exe, tex_file_path, output_hpb_file]
+    print(f"hpy_command: {command_str}")
 
     # 执行命令
     stdout, stderr, returncode = run_command(command)
@@ -48,5 +49,7 @@ def main():
     else:
         print(f"Command failed with return code {returncode}")
         print(f"Error output: {stderr.decode('utf-8')}")
+
+
 if __name__ == "__main__":
     main()
