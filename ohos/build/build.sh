@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+set -e
+
 # 定义 JSON 文件路径
 JSON_FILE="build-tex.json"
 TEX_SOURCE_DIR="../../hyph-utf8/tex/generic/hyph-utf8/patterns/tex"
