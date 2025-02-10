@@ -781,7 +781,6 @@ void HyphenProcessor::Proccess(const std::string& filePath, const std::string& o
     if (realpath(outFilePath.c_str(), resolvedPath) == nullptr) {
         CreateDirectory(resolvedPath);
     }
-    std::string outFile(resolvedPath);
 
     vector<vector<uint16_t>> utf16Patterns;
     ResolvePatternsFromSections(sections, utf16Patterns);
@@ -794,8 +793,8 @@ void HyphenProcessor::Proccess(const std::string& filePath, const std::string& o
     BreakLeavesIntoPaths(leaves, range, countPat);
 
     string filename = GetFileNameWithoutSuffix(filePath);
-    std::cout << "output file: " << (outFile + "/" + filename + ".hpb") << std::endl;
-    ofstream out((outFile + "/" + filename + ".hpb"), ios::binary);
+    std::cout << "output file: " << (outFilePath + "/" + filename + ".hpb") << std::endl;
+    ofstream out((outFilePath + "/" + filename + ".hpb"), ios::binary);
     uint32_t tableOffset = InitOutFileHead(out);
     vector<PathOffset> offsets;
     uint32_t toc = 0;
