@@ -19,7 +19,8 @@ ohos_executable("hpb_transform") {
   output_name = "hpb_transform"
   part_name = "tex-hyphen"
   install_enable = false
-  sources = [ "$hyphen_root/ohos/src/hyphen-build/hyphen_pattern_processor.cpp" ]
+  sources =
+      [ "$hyphen_root/ohos/src/hyphen-build/hyphen_pattern_processor.cpp" ]
   external_deps = [ "icu:shared_icuuc" ]
 }
 
@@ -31,12 +32,13 @@ foreach(tex_source, tex_source_config) {
 
   action("tex_hyphen_hpb_action_$language") {
     script = "$hyphen_root/ohos/build/generate_hpb.py"
-    tex_base_output_path = get_label_info(":hpb_transform(${host_toolchain})", "root_out_dir")
+    tex_base_output_path =
+        get_label_info(":hpb_transform(${host_toolchain})", "root_out_dir")
     sources = [ tex_source.file_path ]
     outputs = [ hpb_file ]
     args = [
-      rebase_path(tex_base_output_path) + "/thirdparty/tex-hyphen/hpb_transform",
-      rebase_path("$hyphen_root", root_build_dir),
+      rebase_path(tex_base_output_path) +
+          "/thirdparty/tex-hyphen/hpb_transform",
       rebase_path(sources[0], root_build_dir),
       rebase_path("$target_out_dir/hpb_out", root_build_dir),
     ]
