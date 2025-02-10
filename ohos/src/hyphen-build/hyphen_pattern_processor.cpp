@@ -37,9 +37,8 @@ vector<uint16_t> ConvertToUtf16(const string& utf8Str)
     uint32_t c = 0;
     vector<uint16_t> target;
     const int32_t textLength = static_cast<int32_t>(utf8Str.size());
-
     while (i < textLength) {
-        U8_NEXT(utf8Str.c_str(), i, textLength, c);
+        U8_NEXT(reinterpret_cast<const uint8_t*>(utf8Str.c_str()), i, textLength, c);
         if (U16_LENGTH(c) == 1) {
             target.push_back(c);
         } else {
@@ -781,7 +780,6 @@ void HyphenProcessor::Proccess(const std::string& filePath, const std::string& o
     if (realpath(outFilePath.c_str(), resolvedPath) == nullptr) {
         CreateDirectory(resolvedPath);
     }
-    std::string outFile(resolvedPath);
 
     vector<vector<uint16_t>> utf16Patterns;
     ResolvePatternsFromSections(sections, utf16Patterns);
@@ -794,8 +792,8 @@ void HyphenProcessor::Proccess(const std::string& filePath, const std::string& o
     BreakLeavesIntoPaths(leaves, range, countPat);
 
     string filename = GetFileNameWithoutSuffix(filePath);
-    std::cout << "output file: " << (outFile + "/" + filename + ".hpb") << std::endl;
-    ofstream out((outFile + "/" + filename + ".hpb"), ios::binary);
+    std::cout << "output file: " << (outFilePath + "/" + filename + ".hpb") << std::endl;
+    ofstream out((outFilePath + "/" + filename + ".hpb"), ios::binary);
     uint32_t tableOffset = InitOutFileHead(out);
     vector<PathOffset> offsets;
     uint32_t toc = 0;

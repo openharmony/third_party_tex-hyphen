@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# coding: utf-8
 # Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,7 +90,7 @@ def main(config_file_name):
     for tex_file in tex_files:
         tex_filename = tex_file['filename']
         words = tex_file['words']
-        hpb_filename = os.path.splitext(tex_filename)[0] + '.hpb'
+        hpb_filename = f"{os.path.splitext(tex_filename)[0]}.hpb"
         hpb_filepath = os.path.join(out_dir, hpb_filename)
 
         # Step 1: Run the transform command

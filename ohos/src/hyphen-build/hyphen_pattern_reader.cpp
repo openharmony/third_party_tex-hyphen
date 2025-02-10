@@ -41,9 +41,8 @@ vector<uint16_t> ConvertToUtf16(const string& utf8Str)
     uint32_t c = 0;
     vector<uint16_t> target;
     const int32_t textLength = utf8Str.size();
-
     while (i < textLength) {
-        U8_NEXT(utf8Str.c_str(), i, textLength, c);
+        U8_NEXT(reinterpret_cast<const uint8_t*>(utf8Str.c_str()), i, textLength, c);
         if (U16_LENGTH(c) == 1) {
             target.push_back(c);
         } else {
