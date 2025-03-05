@@ -15,6 +15,7 @@
 
 #include "hyphen_pattern.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <climits>
 #include <fstream>
@@ -27,9 +28,25 @@
 
 using namespace std;
 
+// to enable more information on development time
+// define VERBOSE_PATTERNS
+
 namespace OHOS::Hyphenate {
 // upper limit for direct pointing arrays
 #define MAXIMUM_DIRECT_CODE_POINT 0x7a
+
+struct Leaf {
+    uint16_t offset{0};
+    uint16_t usecount{0};
+};
+
+struct Rule {
+    uint16_t offset{0};
+    map<uint16_t, vector<vector<uint16_t>>> patterns;
+    map<uint16_t, Leaf> uniqLeafs;
+};
+
+static map<vector<uint8_t>, Rule> g_allRules;
 
 vector<uint16_t> ConvertToUtf16(const string& utf8Str)
 {
@@ -56,62 +73,77 @@ struct Path {
     explicit Path(const vector<uint16_t>& path, const vector<uint8_t>* pat)
     {
         count++;
-        size_t pathSize = path.size();
-        if (pathSize > 0) {
-            code = path[--pathSize];
+        size_t targetIndex = path.size();
+        if (targetIndex > 0) {
+            code = path[--targetIndex];
+        }
+        if ((code <= MAXIMUM_DIRECT_CODE_POINT)) {
+            maximumCP = max(maximumCP, code);
+            minimumCP = min(minimumCP, code);
         }
 
         // Process children recursively
-        if (pathSize > 0) {
-            Process(path, pathSize, pat);
+        if (targetIndex > 0) {
+            Process(path, targetIndex, pat);
         } else {
             // store pattern to leafs
             pattern = pat;
-            // this is not very clear division yet, but generally
-            // the direct array size needs to be limited
-            if ((code <= MAXIMUM_DIRECT_CODE_POINT) && (code != '.') && (code != '\'') && (code != '-')) {
-                maximumCP = max(maximumCP, code);
-                minimumCP = min(minimumCP, code);
-            }
             leafCount++;
         }
     }
 
-    void Process(const vector<uint16_t>& path, size_t pathSize, const vector<uint8_t>* pat)
+    void Process(const vector<uint16_t>& path, size_t targetIndex, const vector<uint8_t>* pat)
     {
-        if (pathSize <= 0) {
+        if (targetIndex == 0) {
+            pattern = pat;
             return;
         }
 
-        uint16_t key = path[--pathSize];
+        uint16_t key = path[--targetIndex];
         if (auto ite = paths.find(key); ite != paths.end()) {
-            ite->second.Process(path, pathSize, pat);
+            ite->second.Process(path, targetIndex, pat);
         } else {
-            if (key > MAXIMUM_DIRECT_CODE_POINT || key == '.' || key == '\'' || key == '-') {
+            if (key > MAXIMUM_DIRECT_CODE_POINT) {
                 // if we have direct children with distinct code points, we need to use
                 // value pairs
                 haveNoncontiguousChildren = true;
             }
-            vector<uint16_t> substr(path.cbegin(), path.cbegin() + pathSize + 1);
+            vector<uint16_t> substr(path.cbegin(), path.cbegin() + targetIndex + 1);
             // recurse
             paths.emplace(key, Path(substr, pat));
         }
     }
 
-    // Once this node is reached, we can access pattern
-    // instead traversing further
-    bool IsLeaf() const { return pattern != nullptr; }
+    // The graph is built using pattern end characters
+    // while the rules may have different leaf nodes
+    // Check the dictionary terminated graph for unified rules and leafs
+    void FindSharedLeaves()
+    {
+        if (paths.size() != 0) {
+            for (auto& path : paths) {
+                path.second.FindSharedLeaves();
+            }
+        } else if (g_allRules.count(*pattern)) {
+            auto ite = g_allRules[*pattern].uniqLeafs.find(code);
+            if (ite != g_allRules[*pattern].uniqLeafs.cend()) {
+                ite->second.usecount += 1;
+            }
+        }
+    }
 
-    // This instance of Path and its children implement a straight path without ambquity
+    // Once this node is reached, we can access pattern
+    // however traversing further may be needed
+    bool HasPattern() const { return pattern != nullptr; }
+
+    // This instance of Path and its children implement a straight path without ambquity.
     // No need to traverse through tables to reach pattern.
     // Calculate the depth of the graph.
-    bool IsLinear(size_t& count) const
+    bool IsLinear() const
     {
-        count++;
         if (paths.size() == 0) {
             return true;
         } else if (paths.size() == 1) {
-            return paths.begin()->second.IsLinear(count);
+            return paths.begin()->second.IsLinear();
         }
         return false;
     }
@@ -129,11 +161,10 @@ struct Path {
         } else {
             cout << char(code) << "***: " << paths.size();
         }
-        size_t dummy{0};
         if (paths.size() >= LARGE_PATH_SIZE)
-            cout << " ###";
-        else if (IsLinear(dummy)) {
-            cout << " !!!";
+            cout << " LARGE";
+        else if (IsLinear()) {
+            cout << " LINEAR";
         } else {
             cout << " @@@";
         }
@@ -156,21 +187,19 @@ struct Path {
             out.write(reinterpret_cast<const char*>(&size), sizeof(size));
         }
 
-        if ((data.size() & 0x1) != 0) {
-            data.push_back(0);
-        }
-
-        for (size_t i = 0; i < data.size() / HYPHEN_BASE_CODE_SHIFT; i++) {
-            uint32_t bytes = data[i * HYPHEN_BASE_CODE_SHIFT] | (data[i * HYPHEN_BASE_CODE_SHIFT + 1] << SHIFT_BITS_16);
+        for (size_t i = 0; i < data.size(); i++) {
+            uint16_t bytes = data[i];
             out.write(reinterpret_cast<const char*>(&bytes), sizeof(bytes));
         }
     }
 
-    static void WritePacked(const vector<uint8_t>& data, ostream& out)
+    static uint16_t WritePacked(const vector<uint8_t>& data, ostream& out, bool writeSize = true)
     {
         constexpr size_t ALIGN_4BYTES = 0x03;
         uint16_t size = data.size();
-        out.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        if (writeSize) {
+            out.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        }
 
         if ((data.size() & ALIGN_4BYTES) != 0) {
             cerr << "### uint8_t vectors should be aligned in 4 bytes !!!" << endl;
@@ -182,6 +211,7 @@ struct Path {
             uint32_t bytes = data[i] | (data[i + 1] << 8) | (data[i + 2] << 16) | (data[i + 3] << 24);
             out.write(reinterpret_cast<const char*>(&bytes), sizeof(bytes));
         }
+        return size;
     }
 
     // no need to twiddle the bytes or words currently
@@ -198,72 +228,73 @@ struct Path {
 
     static void WritePackedLine(const Path& pathSrc, ostream& out, PathType& type)
     {
-        // this instance is linear, also write pattern
+        bool wroteSomething{false};
         vector<uint16_t> output;
-        const Path* path = &pathSrc;
-        auto localPattern = pathSrc.pattern;
 
-        if (!path->paths.empty()) {
-            auto ite = path->paths.cbegin();
-            path = &(ite->second);
-            localPattern = path->pattern;
-        }
-        while (path) {
-            output.push_back(path->code);
-            if (!path->paths.empty()) {
-                auto ite = path->paths.cbegin();
-                path = &(ite->second);
-                localPattern = path->pattern;
-            } else {
-                break;
-            }
-        }
-
-        // if we have multiple children, they need to be checked
-        // when collecting rules
-        if (output.size() > 1) {
-            type = PathType::LINEAR;
-            WritePacked(output, out);
-        } else {
-            // otherwise ce can directly jump to pattern
+        // we do NOT need to write local pattern if we don't have children
+        if (pathSrc.paths.empty()) {
             type = PathType::PATTERN;
-            if (output.empty()) {
-                output.push_back(0);
-            }
-            out.write(reinterpret_cast<const char*>(&output[0]), sizeof(output[0]));
+            return;
         }
-        if (localPattern) {
-            WritePacked(*localPattern, out);
+
+        type = PathType::LINEAR;
+        auto ite = pathSrc.paths.cbegin();
+        const auto* path = &(ite->second);
+        auto localPattern = path->pattern;
+        output.push_back(path->code);
+
+        while (path) {
+            if (localPattern) {
+                // if we have children, they need to be checked when collecting rules
+                if (output.size() > 0) {
+                    WritePacked(output, out);
+                }
+                path->WritePatternOrNull(out);
+                output.clear();
+                localPattern = 0;
+                wroteSomething = true;
+            } else {
+                // traverse further
+                if (!path->paths.empty()) {
+                    auto ite = path->paths.cbegin();
+                    path = &(ite->second);
+                    localPattern = path->pattern;
+                    output.push_back(path->code);
+                } else {
+                    break;
+                }
+            }
+        }
+        if (!wroteSomething) {
+            cerr << "Did not write anything linear" << endl;
+            type = PathType::PATTERN;
         } else {
-            cerr << "Could not resolve pattern on the linear path !!!" << endl;
+            // mark array end so that reader knows when to stop recursing
+            uint16_t size = 0;
+            out.write(reinterpret_cast<const char*>(&size), sizeof(size));
         }
     }
 
-    uint16_t Write(ostream& out, uint32_t offset = 0, uint16_t* endPos = nullptr, bool breakForCheck = false) const
+    void WritePatternOrNull(ostream& out) const
     {
-        if (minimumCP > maximumCP) {
-            cerr << "Minimum code point cannot be smaller than maximum, bailing out" << endl;
-            return 0;
+        uint16_t size = 0;
+        if (HasPattern()) {
+            auto ite = g_allRules.find(*pattern);
+            size = ite->second.offset;
         }
 
-        PathType type = PathType::DIRECT;
+        out.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    }
 
-        // kind of laymans conditional breakpoint, could be removed completely
-        if (breakForCheck) {
-            cout << "### raw 16-bit offset: " << (static_cast<uint32_t>(out.tellp()) >> 1) << endl;
-        }
-
-        // store the current offset
-        uint32_t pos = static_cast<uint32_t>(out.tellp());
-
+    void WriteTypedNode(ostream& out, uint32_t offset, uint32_t& pos, PathType& type) const
+    {
         // check if we are linear or should write a table
-        size_t count = 0;
-        if (IsLinear(count)) {
+        if (IsLinear()) {
+            WritePatternOrNull(out);
             WritePackedLine(*this, out, type);
         } else if ((paths.size() < static_cast<size_t>(maximumCP - minimumCP) / HYPHEN_BASE_CODE_SHIFT)
                    || haveNoncontiguousChildren) {
             // Using dense table, i.e. value pairs
-            // we need to use this also when the code is larger than ff
             vector<uint16_t> output;
             for (const auto& path : paths) {
                 output.push_back(path.first);
@@ -271,18 +302,17 @@ struct Path {
             }
             pos = static_cast<uint32_t>(out.tellp()); // our header is after children data
             type = PathType::PAIRS;
+            WritePatternOrNull(out);
             WritePacked(output, out);
         } else {
             // Direct pointing, initialize full mapping table
             vector<uint16_t> output;
-            output.resize(maximumCP - minimumCP, 0);
+            output.resize(maximumCP - minimumCP + 1, 0);
             if ((output.size() & 0x1) != 0) {
                 output.push_back(0); // pad
             }
-
-            // traverse children recursively (dfs)
             for (const auto& path : paths) {
-                // store offsets of the children to the table
+                // traverse children recursively (dfs)
                 if (path.first >= minimumCP && path.first <= maximumCP) {
                     output[path.first - minimumCP] = path.second.Write(out, offset);
                 } else {
@@ -291,21 +321,52 @@ struct Path {
                 }
             }
             pos = static_cast<uint32_t>(out.tellp()); // children first
-            WritePacked(output, out, false);
+            WritePatternOrNull(out);                  // pattern first
+            WritePacked(output, out, false);          // then children table
+        }
+    }
+
+    uint16_t Write(ostream& out, uint32_t offset = 0, uint32_t* endPos = nullptr) const
+    {
+        if (HasPattern() && paths.size() == 0) { // currently only leafs are shared
+            // if we have a shared leaf for shared pattern, use it
+            if (auto ite = g_allRules[*pattern].uniqLeafs.find(code); ite != g_allRules[*pattern].uniqLeafs.cend()) {
+                if (ite->second.offset != 0) {
+                    return ite->second.offset;
+                }
+            }
         }
 
-        // return overall offset
-        if (((pos >> 1) - offset) > 0x3fff) {
-            cerr << " ### Cannot fit offset " << pos << ":" << (pos / HYPHEN_BASE_CODE_SHIFT - offset) <<
-                " into 14 bits, need to redesign !!!!" << endl;
-            pos = offset;
-        }
+        PathType type = PathType::DIRECT;
+        uint32_t pos = out.tellp();
+        uint32_t oPos = pos;
 
+        WriteTypedNode(out, offset, pos, type);
+
+        // return overall offset in 16bit
+        CheckThatDataFits(pos, offset, out, type, oPos);
         if (endPos) {
             *endPos = static_cast<uint32_t>(out.tellp()) >> 1;
         }
-
         return (((pos >> 1) - offset) | (static_cast<uint32_t>(type) << SHIFT_BITS_14));
+    }
+
+    void CheckThatDataFits(uint32_t& pos, uint32_t offset, ostream& out, PathType& type, uint32_t oPos) const
+    {
+        // return overall offset in 16bit
+        if (((pos >> 1) > offset) && ((pos >> 1) - offset) > 0x3fff) {
+            cerr << " ### Cannot fit offset " << hex << pos << " : " << offset
+                 << " into 14 bits, dropping node" << endl;
+            out.seekp(oPos, ios_base::beg); // roll back to the beginning of this entry
+            if (!out.good()) {
+                // failing to roll back, terminate
+                cerr << "Could not roll back outfile, terminating" << endl;
+                exit(-1);
+            }
+            WritePatternOrNull(out);
+            type = PathType::PATTERN;
+            pos = out.tellp();
+        }
     }
 
     static size_t count;
@@ -321,8 +382,8 @@ struct Path {
 
 size_t Path::count{0};
 size_t Path::leafCount{0};
-uint16_t Path::minimumCP = 'j';
-uint16_t Path::maximumCP = 'j';
+uint16_t Path::minimumCP = 0x7a;
+uint16_t Path::maximumCP = 0x5f;
 
 // Struct to hold all the patterns that end with the code.
 struct PatternHolder {
@@ -349,9 +410,10 @@ struct WriteOffestsParams {
         : fOffsets(offsets), fMappingsPos(mappingsPos), fCpRange(cpRange)
     {
     }
-    const vector<PathOffset> fOffsets;
+    vector<PathOffset> fOffsets;
     uint32_t fMappingsPos;
     CpRange fCpRange;
+    uint16_t fCommonNodeOffset;
 };
 
 void processSection(const string& line, map<string, vector<string>>& sections, vector<string>*& current)
@@ -437,23 +499,27 @@ static int32_t ResolveSectionsFromFile(const std::string& fileName, map<string, 
     return SUCCEED;
 }
 
-static string ProcessWord(const string& word)
+static vector<uint16_t> ProcessWord(const string& wordString)
 {
-    string result;
+    auto word = ConvertToUtf16(wordString);
+    vector<uint16_t> result;
     bool addedBreak = false;
     for (const auto code : word) {
         if (code == '-') {
-            result += to_string(BREAK_FLAG);
+            result.push_back(BREAK_FLAG);
             addedBreak = true;
         } else {
             if (!addedBreak) {
-                result += to_string(NO_BREAK_FLAG);
+                result.push_back(NO_BREAK_FLAG);
             }
-            result += code;
+            result.push_back(code);
             addedBreak = false;
         }
     }
-    cout << "Adding exception: " << result << endl;
+    // match exceptions in full words only
+    result.insert(result.cbegin(), '.');
+    result.push_back('.');
+    cout << "Adding exception: " << wordString << endl;
     return result;
 }
 
@@ -463,7 +529,7 @@ static void ResolvePatternsFromSections(map<string, vector<string>>& sections, v
         utf16Patterns.push_back(ConvertToUtf16(pattern));
     }
     for (const auto& word : sections["hyphenation"]) {
-        utf16Patterns.push_back(ConvertToUtf16(ProcessWord(word)));
+        utf16Patterns.push_back(ProcessWord(word));
     }
 }
 
@@ -488,6 +554,18 @@ static void ProcessPattern(const vector<uint16_t>& pattern, vector<uint16_t>& co
         } else {
             if (!addedRule) {
                 rules.push_back(0);
+            }
+            // These have been collected empirically from the existing pattern files.
+            // Remap typical distinct codepoints
+            // below 'a' to the beginning of contiguous range
+            // This same thing needs to be done in 'tolower'
+            // when parsing the results on runtime
+            if (code == '.') {
+                code = '`';
+            } else if (code == '-') {
+                code = '_';
+            } else if (code == '\'') {
+                code = '^';
             }
             codepoints.push_back(code);
             addedRule = false;
@@ -538,9 +616,17 @@ void ResolveLeavesFromPatterns(const vector<vector<uint16_t>>& utf16Patterns, ma
 
         PadRules(rules);
         leaves[ix].patterns[codepoints] = rules;
+        // collect a list of unique rules
+        if (auto it = OHOS::Hyphenate::g_allRules.find(rules); it != OHOS::Hyphenate::g_allRules.end()) {
+            it->second.patterns[ix].push_back(codepoints);
+        } else {
+            OHOS::Hyphenate::g_allRules[rules] = Rule();
+            Hyphenate::g_allRules[rules].patterns[ix].push_back(codepoints);
+        }
     }
 
     cout << "leaves: " << leaves.size() << endl;
+    cout << "unique rules: " << OHOS::Hyphenate::g_allRules.size() << endl;
 }
 
 static void BreakLeavesIntoPaths(map<uint16_t, PatternHolder>& leaves, CpRange& range, int& countPat)
@@ -622,15 +708,82 @@ static int32_t FormatOutFileHead(ofstream& out, const WriteOffestsParams& params
     out.write(reinterpret_cast<const char*>(&toc), sizeof(toc));
     // write mappings
     out.write(reinterpret_cast<const char*>(&params.fMappingsPos), sizeof(params.fMappingsPos));
-    // write binary version
-    const uint32_t version = 0x1 << 24;
+    // write binary version 8 top bits, using the lower 24 bits for common node offset without
+    // needing to increase header size overall offset on the binary file
+    // we may want to change this at some point
+    const uint32_t version = (0x2 << 0x18) | params.fCommonNodeOffset;
     out.write(reinterpret_cast<const char*>(&version), sizeof(version));
+
     return SUCCEED;
 }
 
-static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const CpRange& range, ofstream& out,
+void ProcessUniqueRule(std::pair<const vector<uint8_t>, Rule>& uniqueRule)
+{
+    for (auto ite : uniqueRule.second.patterns) {
+        for (auto rule : ite.second) {
+            if (!uniqueRule.second.uniqLeafs.count(*rule.cbegin())) {
+                uniqueRule.second.uniqLeafs[*rule.cbegin()] = {0, 0};
+            }
+        }
+    }
+}
+
+inline void WriteUniqueRules(ofstream& out)
+{
+    for (auto& uniqueRule : OHOS::Hyphenate::g_allRules) {
+        auto pos = out.tellp();
+        auto size = Path::WritePacked(uniqueRule.first, out, false) / 0x4; // save bits by padding size
+        uniqueRule.second.offset = (size << 0xc) | pos;
+        ProcessUniqueRule(uniqueRule);
+        if (pos >> 0xc) {
+            cerr << "PATTERNS: RUNNING OUT OF ADDRESS SPACE, file a bug" << endl;
+            exit(-1);
+        }
+    }
+}
+
+inline uint16_t WriteSharedLeafs(ofstream& out, map<uint16_t, PatternHolder>& leaves)
+{
+    // check how many of the unique rules remain valid once all the rules are combined
+    for (auto& leave : leaves) {
+        for (auto& path : leave.second.paths) {
+            path.second.FindSharedLeaves();
+        }
+    }
+
+    uint32_t end{0};
+
+    if (out.tellp() % 1) {
+        out.write(reinterpret_cast<const char*>(&end), 1);
+    }
+    auto pos = out.tellp() >> 1;
+    cout << "NOW THIS IS PURE MAGIC NUMBER FOR NOW: " << hex << pos << endl;
+
+    // pad first offset with 16bit zero to make empty patterns ignore the zero offset
+    out.write(reinterpret_cast<const char*>(&end), 2);
+
+    for (auto& uniqueRule : OHOS::Hyphenate::g_allRules) {
+        cout << "###### UniqueRule with " << uniqueRule.second.patterns.size() << " leaves" << endl;
+        for (auto& sharedLeaf : uniqueRule.second.uniqLeafs) {
+            if (sharedLeaf.second.usecount > 0) {
+                Path path({sharedLeaf.first}, &uniqueRule.first);
+                sharedLeaf.second.offset = path.Write(out, pos, &end);
+                cout << "found unique " << hex << (int)sharedLeaf.first << " wrote: '" << sharedLeaf.second.offset <<
+                    "' " << endl;
+            }
+        }
+    }
+    return pos;
+}
+
+static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRange& range, ofstream& out,
                                      uint32_t& tableOffset, vector<PathOffset>& offsets)
 {
+    // unique rules have no offset
+    WriteUniqueRules(out);
+    // shared nodes offset needs to be stored to header
+    auto sharedOffset = WriteSharedLeafs(out, leaves);
+
     vector<Path*> bigOnes;
     bool hasDirect{false};
     for (auto& leave : leaves) {
@@ -639,8 +792,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const
                 bigOnes.push_back(&path.second);
                 continue;
             }
-            uint16_t end{0};
-            uint16_t value = path.second.Write(out, tableOffset, &end, path.first == 'a');
+            uint32_t end{0};
+            uint16_t value = path.second.Write(out, tableOffset, &end);
             uint16_t offset = value & 0x3fff;
             uint32_t type = value & 0x0000c000;
             uint16_t code = path.first;
@@ -654,7 +807,7 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const
 
     // write distinc code points array after the direct ones
     for (auto path : bigOnes) {
-        uint16_t end{0};
+        uint32_t end{0};
         uint16_t value = path->Write(out, tableOffset, &end);
         uint16_t offset = value & 0x3fff;
         uint32_t type = value & 0x0000c000;
@@ -664,6 +817,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const
         tableOffset = end;
         offsets.push_back(PathOffset(offset, end, type, code));
     }
+
+    offsets.push_back(PathOffset(sharedOffset, 0, 0, 0));
     return hasDirect;
 }
 
@@ -706,7 +861,10 @@ void ProcessDistinctCodepoints(std::vector<PathOffset>::const_iterator& lastEffe
     if (params.fCpRange.maximumCp != 0) {
         pos++;
     }
-    while (++lastEffectiveIterator != params.fOffsets.cend()) {
+    if (lastEffectiveIterator != params.fOffsets.cbegin()) {
+        ++lastEffectiveIterator;
+    }
+    while (lastEffectiveIterator != params.fOffsets.cend()) {
         mappings.push_back(lastEffectiveIterator->code);
         mappings.push_back(pos++);
         uint32_t type = static_cast<uint32_t>(lastEffectiveIterator->type);
@@ -717,11 +875,17 @@ void ProcessDistinctCodepoints(std::vector<PathOffset>::const_iterator& lastEffe
             " c: 0x" << bytes << std::endl;
         Path::WritePacked(bytes, out);
         Path::WritePacked(currentEnd, out);
+        ++lastEffectiveIterator;
     }
 }
 
 static void WriteOffestsToOutFile(ofstream& out, WriteOffestsParams& params, uint32_t currentEnd, bool hasDirect)
 {
+    if (!params.fOffsets.empty() && params.fOffsets.rbegin()->code == 0) {
+        params.fCommonNodeOffset = params.fOffsets.rbegin()->offset;
+        params.fOffsets.pop_back();
+    }
+
     auto lastEffectiveIterator = params.fOffsets.cbegin();
     vector<uint16_t> mappings;
 
@@ -799,11 +963,15 @@ void HyphenProcessor::Proccess(const std::string& filePath, const std::string& o
     uint32_t toc = 0;
 
     bool hasDirect = WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
-    toc = static_cast<uint32_t>(out.tellp());
+    toc = out.tellp();
+    if (toc % 0x4) {
+        out.write(reinterpret_cast<const char*>(&toc), toc % 0x4);
+        toc = out.tellp();
+    }
     // and main table offsets
     cout << "Produced " << offsets.size() << " paths with z: " << toc << endl;
 
-    uint32_t currentEnd = FULL_TALBLE * 2; // initial offset (in 16 bites)
+    uint32_t currentEnd = FULL_TALBLE * 2; // initial offset (in 16 bits)
     Path::WritePacked(currentEnd, out);
 
     uint32_t mappingsPos = 0;
@@ -828,5 +996,6 @@ int main(int argc, char** argv)
 
     OHOS::Hyphenate::HyphenProcessor hyphenProcessor;
     hyphenProcessor.Proccess(filePath, outFilePath);
+
     return SUCCEED;
 }
