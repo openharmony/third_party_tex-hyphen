@@ -728,7 +728,7 @@ void ProcessUniqueRule(std::pair<const vector<uint8_t>, Rule>& uniqueRule)
     }
 }
 
-inline void WriteUniqueRules(ofstream& out)
+void WriteUniqueRules(ofstream& out)
 {
     for (auto& uniqueRule : OHOS::Hyphenate::g_allRules) {
         auto pos = out.tellp();
@@ -742,26 +742,8 @@ inline void WriteUniqueRules(ofstream& out)
     }
 }
 
-inline uint16_t WriteSharedLeafs(ofstream& out, map<uint16_t, PatternHolder>& leaves)
+void WriteSharedLeafs(ofstream& out, uint16_t& pos, uint32_t& end)
 {
-    // check how many of the unique rules remain valid once all the rules are combined
-    for (auto& leave : leaves) {
-        for (auto& path : leave.second.paths) {
-            path.second.FindSharedLeaves();
-        }
-    }
-
-    uint32_t end{0};
-
-    if (out.tellp() % 1) {
-        out.write(reinterpret_cast<const char*>(&end), 1);
-    }
-    auto pos = out.tellp() >> 1;
-    cout << "NOW THIS IS PURE MAGIC NUMBER FOR NOW: " << hex << pos << endl;
-
-    // pad first offset with 16bit zero to make empty patterns ignore the zero offset
-    out.write(reinterpret_cast<const char*>(&end), 2);
-
     for (auto& uniqueRule : OHOS::Hyphenate::g_allRules) {
         cout << "###### UniqueRule with " << uniqueRule.second.patterns.size() << " leaves" << endl;
         for (auto& sharedLeaf : uniqueRule.second.uniqLeafs) {
@@ -773,6 +755,25 @@ inline uint16_t WriteSharedLeafs(ofstream& out, map<uint16_t, PatternHolder>& le
             }
         }
     }
+}
+
+uint16_t CheckSharedLeaves(ofstream& out, map<uint16_t, PatternHolder>& leaves)
+{
+    // check how many of the unique rules remain valid once all the rules are combined
+    for (auto& leave : leaves) {
+        for (auto& path : leave.second.paths) {
+            path.second.FindSharedLeaves();
+        }
+    }
+    uint32_t end{0};
+    if (out.tellp() % 1) {
+        out.write(reinterpret_cast<const char*>(&end), 1);
+    }
+    uint16_t pos = static_cast<uint16_t>(out.tellp()) >> 1;
+    cout << "NOW THIS IS PURE MAGIC NUMBER FOR NOW: " << hex << pos << endl;
+    // pad first offset with 16bit zero to make empty patterns ignore the zero offset
+    out.write(reinterpret_cast<const char*>(&end), 2);
+    WriteSharedLeafs(out, pos, end);
     return pos;
 }
 
@@ -782,7 +783,7 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRan
     // unique rules have no offset
     WriteUniqueRules(out);
     // shared nodes offset needs to be stored to header
-    auto sharedOffset = WriteSharedLeafs(out, leaves);
+    auto sharedOffset = CheckSharedLeaves(out, leaves);
 
     vector<Path*> bigOnes;
     bool hasDirect{false};
