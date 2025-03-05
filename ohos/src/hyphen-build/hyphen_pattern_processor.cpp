@@ -34,7 +34,7 @@ namespace OHOS::Hyphenate {
 vector<uint16_t> ConvertToUtf16(const string& utf8Str)
 {
     int32_t i = 0;
-    uint32_t c = 0;
+    UChar32 c = 0;
     vector<uint16_t> target;
     const int32_t textLength = static_cast<int32_t>(utf8Str.size());
     while (i < textLength) {
