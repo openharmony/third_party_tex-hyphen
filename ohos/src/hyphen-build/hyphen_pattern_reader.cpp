@@ -54,9 +54,7 @@ vector<uint16_t> ConvertToUtf16(const string& utf8Str)
 }
 
 struct Pattern {
-    uint16_t code;
-    uint16_t count;
-    uint8_t patterns[4]; // dynamic
+    uint8_t patterns[8]; // dynamic
 };
 
 struct ArrayOf16bits {
@@ -100,7 +98,15 @@ struct Header {
 
     inline static void ToLower(uint16_t& code)
     {
-        code = tolower(code);
+        if (code == '.') {
+            code = '`';
+        } else if (code == '\'') {
+            code = '^';
+        } else if (code == '-') {
+            code = '_';
+        } else {
+            code = tolower(code);
+        }
         cout << "tolower: " << hex << static_cast<int>(code) << endl;
     }
 
@@ -115,7 +121,8 @@ struct CodeInfo {
     int32_t OpenPatFile(const char* filePath);
     int32_t GetHeader();
     int32_t GetCodeInfo(uint16_t code);
-    void ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result);
+    void ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result,
+                        bool direct);
     bool ProcessDirect(const std::vector<uint16_t>& target, const size_t& offset);
     void ProcessLinear(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result);
     bool ProcessNextCode(const std::vector<uint16_t>& target, const size_t& offset);
@@ -218,7 +225,9 @@ int32_t CodeInfo::GetCodeInfo(uint16_t code)
     uint32_t baseOffset =
         *reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t*>(fAddress + fHeader->toc) + fOffset - 1);
     uint32_t initialValue = *(reinterpret_cast<uint32_t*>(fAddress + fHeader->toc) + fOffset);
-    if (initialValue == 0) { // 0 is never valid offset from maindict
+    fType = static_cast<PathType>(initialValue >> SHIFT_BITS_30);
+    // direct and pairs need to have offset different from zero
+    if (initialValue == 0 && (fType == PathType::DIRECT || fType == PathType::PAIRS)) {
         cout << char(code) << " is not in main dict, contiue straight" << endl;
         return FAILED;
     }
@@ -228,41 +237,42 @@ int32_t CodeInfo::GetCodeInfo(uint16_t code)
     // get a subtable according character
     // once: read as 32bit, the rest of the access will be 16bit (13bit for offsets)
     fNextOffset = (initialValue & 0x3fffffff);
-    fType = static_cast<PathType>(initialValue >> SHIFT_BITS_30);
 
     cout << hex << baseOffset << " top level code: 0x" << hex << static_cast<int>(code) <<
         " starting with offset: 0x" << hex << fOffset << " table-offset 0x" << fNextOffset << endl;
     return SUCCEED;
 }
 
-void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result)
+void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result,
+                              bool direct)
 {
-    //   if we have reached pattern, apply it to result
-    auto p = reinterpret_cast<const Pattern*>(fStaticOffset + fNextOffset);
-    uint16_t codeValue = p->code;
-    // if the code point is defined, the sub index refers to code next to this node
-    if (codeValue > 0) {
-        if (codeValue != target[offset - fIndex]) {
-            cout << "break on pattern: " << hex << codeValue << endl;
-            return;
-        }
+    cout << "direct : " << direct << " " << hex << fNextOffset << endl;
+    uint16_t poffset = 0;
+    if (direct && (fHeader->version >> 0x18) >= 0x2) {
+        poffset = *(reinterpret_cast<uint16_t*>(fAddress) + fNextOffset + (fHeader->version & 0xffff));
     } else {
-        // so qe need to substract if this is the direct ref
-        fIndex--;
+        poffset = *(fStaticOffset + fNextOffset);
     }
-    uint16_t count = p->count;
-    cout << "  found pattern with size: " << count << " ix: " << fIndex << endl;
-    size_t i = 0;
-    // when we reach pattern node (leaf), we need to increase ix by one because of our
-    // own code offset
-    for (size_t j = offset - fIndex; j <= offset && i < count; j++) {
-        cout << "    pattern index: " << i << " value: 0x" << hex << static_cast<int>(p->patterns[i]) << endl;
-        result[j] = std::max(result[j], (p->patterns[i]));
-        i++;
+    fNextOffset++; // there now is always at least pattern count before next node
+    if (!poffset) {
+        return;
     }
-    // loop breaks
-    cout << "break on pattern" << endl;
-    //   else if we can directly point to next entry
+    uint16_t count = (poffset >> 0xc) * 0x4; // patterns are padded to 4 byte arrays.
+                                             // to save bits, the count is multiplied by four
+    poffset = 0xfff & poffset;
+
+    //   if we have reached pattern, apply it to result
+    auto p = reinterpret_cast<const Pattern*>(fAddress + poffset);
+    if (count) {
+        cout << "Node with a pattern, count " << count << hex << " offset: " << poffset << endl;
+        size_t i = 0;
+        for (size_t j = offset - fIndex; j < result.size() && i < count; j++) {
+            cout << "    " << (int)j << ": pattern index: " << i << " value: 0x" << hex
+                 << static_cast<int>(p->patterns[i]) << endl;
+            result[j] = std::max(result[j], (p->patterns[i]));
+            i++;
+        }
+    }
 }
 
 bool CodeInfo::ProcessDirect(const std::vector<uint16_t>& target, const size_t& offset)
@@ -292,45 +302,32 @@ void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, const size_t& 
 {
     auto p = reinterpret_cast<const ArrayOf16bits*>(fStaticOffset + fNextOffset);
     auto count = p->count;
-    auto origPos = fIndex;
 
     fIndex++;
-    cout << "  found linear with size: " << count << " looking next " << static_cast<int>(target[offset - fIndex])
-         << endl;
-    if (count > (offset - fIndex + 1)) {
+    cout << "# linear " << offset << " " << fIndex << endl;
+    if (fIndex > offset || count > (offset - fIndex + 1)) {
         // the pattern is longer than the remaining word
         cout << "# break loop on linear " << offset << " " << fIndex << endl;
         return;
     }
-    bool match = true;
-    //     check the rest of the string
+    // check the rest of the string
     for (auto j = 0; j < count; j++) {
-        cout << "    linear index: " << j << " value: " << hex << static_cast<int>(p->codes[j]) << " vs " <<
-            static_cast<int>(target[offset - fIndex]) << endl;
+        cout << "    linear " << offset << " index: " << j << " value: " << hex << static_cast<int>(p->codes[j]) <<
+            " vs " << static_cast<int>(target[offset - fIndex]) << endl;
         if (p->codes[j] != target[offset - fIndex]) {
-            match = false;
             return;
         } else {
             fIndex++;
         }
     }
-
-    //  if we reach the end, apply pattern
-    if (match) {
-        fNextOffset += count + (count & 0x1);
-        auto matchPattern = reinterpret_cast<const Pattern*>(fStaticOffset + fNextOffset);
-        cout << "    found match, needed to pad " << static_cast<int>(count & 0x1) <<
-            " pat count: " << static_cast<int>(matchPattern->count) << endl;
-        size_t i = 0;
-        for (size_t j = offset - origPos - count; j <= offset && i < matchPattern->count; j++) {
-            cout << "       pattern index: " << i << " value: " << hex << static_cast<int>(matchPattern->patterns[i]) <<
-                endl;
-            result[j] = std::max(result[j], matchPattern->patterns[i]);
-            i++;
-        }
+    // if we reach the end, apply pattern
+    fNextOffset += count + 1; // array items + one for the count
+    fIndex--;                 // because of recursion
+    ProcessPattern(target, offset, result, false);
+    if (*(fStaticOffset + fNextOffset) != 0 && offset > count) { // peek if there is more to come
+        // make it tail recursive to save stack
+        return ProcessLinear(target, offset, result);
     }
-    // either way, break
-    cout << "# break loop on linear" << endl;
 }
 
 bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, const size_t& offset)
@@ -357,8 +354,7 @@ bool CodeInfo::ProcessNextCode(const std::vector<uint16_t>& target, const size_t
                 endl;
             fOffset = fHeader->CodeOffset(fCode);
             if (fHeader->minCp != fHeader->maxCp && fOffset > fHeader->maxCp) {
-                cout << "# break loop on pairs" << endl;
-                break;
+                cout << "# could not resolve debug offset in pairs" << endl;
             }
 
             fNextOffset = p->codes[j + 1] & 0x3fff;
@@ -407,8 +403,8 @@ void ProcessCodeLoop(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
         std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset <<
             " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
 
+        codeInfo.ProcessPattern(target, i, result, codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN);
         if (codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN) {
-            codeInfo.ProcessPattern(target, i, result);
             continueLoop = false;
         } else if (codeInfo.fType == OHOS::Hyphenate::PathType::DIRECT) {
             if (codeInfo.ProcessDirect(target, i)) {
@@ -430,7 +426,6 @@ void ProcessCodeInfo(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
 {
     for (size_t i = target.size() - 1; i != 0; --i) {
         if (codeInfo.GetCodeInfo(target[i]) != SUCCEED) {
-            result[i] = 0;
             continue;
         }
         codeInfo.fIndex = 0;

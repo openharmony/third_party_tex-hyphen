@@ -17,8 +17,20 @@ hyphen_build_json = "${hyphen_root}/ohos/build/build-tex.json"
 
 tex_source_config = [
   {
+    language = "hyph-as"
+    file_path = "${hyphen_tex_root}/hyph-as.tex"
+  },
+  {
     language = "hyph-be"
     file_path = "${hyphen_tex_root}/hyph-be.tex"
+  },
+  {
+    language = "hyph-bg"
+    file_path = "${hyphen_tex_root}/hyph-bg.tex"
+  },
+  {
+    language = "hyph-bn"
+    file_path = "${hyphen_tex_root}/hyph-bn.tex"
   },
   {
     language = "hyph-cs"
@@ -31,6 +43,10 @@ tex_source_config = [
   {
     language = "hyph-da"
     file_path = "${hyphen_tex_root}/hyph-da.tex"
+  },
+  {
+    language = "hyph-de-1996"
+    file_path = "${hyphen_tex_root}/hyph-de-1996.tex"
   },
   {
     language = "hyph-de-1901"
@@ -77,6 +93,14 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-gl.tex"
   },
   {
+    language = "hyph-gu"
+    file_path = "${hyphen_tex_root}/hyph-gu.tex"
+  },
+  {
+    language = "hyph-hi"
+    file_path = "${hyphen_tex_root}/hyph-hi.tex"
+  },
+  {
     language = "hyph-hr"
     file_path = "${hyphen_tex_root}/hyph-hr.tex"
   },
@@ -105,6 +129,14 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-ka.tex"
   },
   {
+    language = "hyph-kn"
+    file_path = "${hyphen_tex_root}/hyph-kn.tex"
+  },
+  {
+    language = "hyph-la"
+    file_path = "${hyphen_tex_root}/hyph-la.tex"
+  },
+  {
     language = "hyph-lt"
     file_path = "${hyphen_tex_root}/hyph-lt.tex"
   },
@@ -117,16 +149,44 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-mk.tex"
   },
   {
+    language = "hyph-ml"
+    file_path = "${hyphen_tex_root}/hyph-ml.tex"
+  },
+  {
     language = "hyph-mn-cyrl"
     file_path = "${hyphen_tex_root}/hyph-mn-cyrl.tex"
+  },
+  {
+    language = "hyph-mr"
+    file_path = "${hyphen_tex_root}/hyph-mr.tex"
+  },
+  {
+    language = "hyph-mul-ethi"
+    file_path = "${hyphen_tex_root}/hyph-mul-ethi.tex"
   },
   {
     language = "hyph-nl"
     file_path = "${hyphen_tex_root}/hyph-nl.tex"
   },
   {
+    language = "hyph-or"
+    file_path = "${hyphen_tex_root}/hyph-or.tex"
+  },
+  {
+    language = "hyph-pa"
+    file_path = "${hyphen_tex_root}/hyph-pa.tex"
+  },
+  {
+    language = "hyph-pl"
+    file_path = "${hyphen_tex_root}/hyph-pl.tex"
+  },
+  {
     language = "hyph-pt"
     file_path = "${hyphen_tex_root}/hyph-pt.tex"
+  },
+  {
+    language = "hyph-rm"
+    file_path = "${hyphen_tex_root}/hyph-rm.tex"
   },
   {
     language = "hyph-ru"
@@ -155,6 +215,14 @@ tex_source_config = [
   {
     language = "hyph-sv"
     file_path = "${hyphen_tex_root}/hyph-sv.tex"
+  },
+  {
+    language = "hyph-ta"
+    file_path = "${hyphen_tex_root}/hyph-ta.tex"
+  },
+  {
+    language = "hyph-te"
+    file_path = "${hyphen_tex_root}/hyph-te.tex"
   },
   {
     language = "hyph-th"
