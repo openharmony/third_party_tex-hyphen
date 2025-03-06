@@ -33,8 +33,8 @@ constexpr size_t SHIFT_BITS_14 = 14;
 constexpr size_t SHIFT_BITS_16 = 16;
 constexpr size_t SHIFT_BITS_30 = 30;
 constexpr size_t PADDING_SIZE = 4;
-constexpr int32_t BREAK_FLAG = 9;
-constexpr int32_t NO_BREAK_FLAG = 8;
+constexpr int16_t BREAK_FLAG = '9';
+constexpr int16_t NO_BREAK_FLAG = '8';
 
 // We make assumption that 14 bytes is enough to represent offset
 // so we get two first bits in the array for path type
