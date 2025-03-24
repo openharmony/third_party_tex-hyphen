@@ -59,8 +59,8 @@ vector<uint16_t> ConvertToUtf16(const string& utf8Str)
         if (U16_LENGTH(c) == 1) {
             target.push_back(c);
         } else {
-            target.push_back(U16_LEAD(c));
-            target.push_back(U16_TRAIL(c));
+            target.push_back(U16_LEAD(static_cast<uint32_t>(c)));
+            target.push_back(U16_TRAIL(static_cast<uint32_t>(c)));
         }
     }
     return target;
@@ -123,7 +123,7 @@ struct Path {
             for (auto& path : paths) {
                 path.second.FindSharedLeaves();
             }
-        } else if (g_allRules.count(*pattern)) {
+        } else if (g_allRules.count(*pattern) != 0) {
             auto ite = g_allRules[*pattern].uniqLeafs.find(code);
             if (ite != g_allRules[*pattern].uniqLeafs.cend()) {
                 ite->second.usecount += 1;
@@ -251,13 +251,13 @@ struct Path {
                 }
                 path->WritePatternOrNull(out);
                 output.clear();
-                localPattern = 0;
+                localPattern = nullptr;
                 wroteSomething = true;
             } else {
                 // traverse further
                 if (!path->paths.empty()) {
-                    auto ite = path->paths.cbegin();
-                    path = &(ite->second);
+                    auto itr = path->paths.cbegin();
+                    path = &(itr->second);
                     localPattern = path->pattern;
                     output.push_back(path->code);
                 } else {
@@ -338,7 +338,7 @@ struct Path {
         }
 
         PathType type = PathType::DIRECT;
-        uint32_t pos = out.tellp();
+        uint32_t pos = static_cast<uint32_t>(out.tellp());
         uint32_t oPos = pos;
 
         WriteTypedNode(out, offset, pos, type);
@@ -365,7 +365,7 @@ struct Path {
             }
             WritePatternOrNull(out);
             type = PathType::PATTERN;
-            pos = out.tellp();
+            pos = static_cast<uint32_t>(out.tellp());
         }
     }
 
@@ -731,11 +731,11 @@ void ProcessUniqueRule(std::pair<const vector<uint8_t>, Rule>& uniqueRule)
 void WriteUniqueRules(ofstream& out)
 {
     for (auto& uniqueRule : OHOS::Hyphenate::g_allRules) {
-        auto pos = out.tellp();
-        auto size = Path::WritePacked(uniqueRule.first, out, false) / 0x4; // save bits by padding size
+        uint32_t pos = static_cast<uint32_t>(out.tellp());
+        uint16_t size = Path::WritePacked(uniqueRule.first, out, false) / 0x4; // save bits by padding size
         uniqueRule.second.offset = (size << 0xc) | pos;
         ProcessUniqueRule(uniqueRule);
-        if (pos >> 0xc) {
+        if ((pos >> 0xc) != 0) {
             cerr << "PATTERNS: RUNNING OUT OF ADDRESS SPACE, file a bug" << endl;
             exit(-1);
         }
@@ -750,8 +750,8 @@ void WriteSharedLeafs(ofstream& out, uint16_t& pos, uint32_t& end)
             if (sharedLeaf.second.usecount > 0) {
                 Path path({sharedLeaf.first}, &uniqueRule.first);
                 sharedLeaf.second.offset = path.Write(out, pos, &end);
-                cout << "found unique " << hex << (int)sharedLeaf.first << " wrote: '" << sharedLeaf.second.offset <<
-                    "' " << endl;
+                cout << "found unique " << hex << static_cast<int>(sharedLeaf.first) <<
+                " wrote: '" << sharedLeaf.second.offset << "' " << endl;
             }
         }
     }
@@ -766,7 +766,7 @@ uint16_t CheckSharedLeaves(ofstream& out, map<uint16_t, PatternHolder>& leaves)
         }
     }
     uint32_t end{0};
-    if (out.tellp() % 1) {
+    if ((out.tellp() % 1) != 0) {
         out.write(reinterpret_cast<const char*>(&end), 1);
     }
     uint16_t pos = static_cast<uint16_t>(out.tellp()) >> 1;
@@ -777,7 +777,7 @@ uint16_t CheckSharedLeaves(ofstream& out, map<uint16_t, PatternHolder>& leaves)
     return pos;
 }
 
-static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, CpRange& range, ofstream& out,
+static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const CpRange& range, ofstream& out,
                                      uint32_t& tableOffset, vector<PathOffset>& offsets)
 {
     // unique rules have no offset
@@ -964,10 +964,10 @@ void HyphenProcessor::Proccess(const std::string& filePath, const std::string& o
     uint32_t toc = 0;
 
     bool hasDirect = WriteLeavePathsToOutFile(leaves, range, out, tableOffset, offsets);
-    toc = out.tellp();
-    if (toc % 0x4) {
+    toc = static_cast<uint32_t>(out.tellp());
+    if ((toc % 0x4) != 0) {
         out.write(reinterpret_cast<const char*>(&toc), toc % 0x4);
-        toc = out.tellp();
+        toc = static_cast<uint32_t>(out.tellp());
     }
     // and main table offsets
     cout << "Produced " << offsets.size() << " paths with z: " << toc << endl;
