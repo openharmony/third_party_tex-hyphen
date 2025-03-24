@@ -121,8 +121,7 @@ struct CodeInfo {
     int32_t OpenPatFile(const char* filePath);
     int32_t GetHeader();
     int32_t GetCodeInfo(uint16_t code);
-    void ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result,
-                        bool direct);
+    void ProcessPattern(const size_t& offset, vector<uint8_t>& result, bool direct);
     bool ProcessDirect(const std::vector<uint16_t>& target, const size_t& offset);
     void ProcessLinear(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result);
     bool ProcessNextCode(const std::vector<uint16_t>& target, const size_t& offset);
@@ -243,8 +242,7 @@ int32_t CodeInfo::GetCodeInfo(uint16_t code)
     return SUCCEED;
 }
 
-void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, const size_t& offset, vector<uint8_t>& result,
-                              bool direct)
+void CodeInfo::ProcessPattern(const size_t& offset, vector<uint8_t>& result, bool direct)
 {
     cout << "direct : " << direct << " " << hex << fNextOffset << endl;
     uint16_t poffset = 0;
@@ -263,11 +261,11 @@ void CodeInfo::ProcessPattern(const std::vector<uint16_t>& target, const size_t&
 
     //   if we have reached pattern, apply it to result
     auto p = reinterpret_cast<const Pattern*>(fAddress + poffset);
-    if (count) {
+    if (count != 0) {
         cout << "Node with a pattern, count " << count << hex << " offset: " << poffset << endl;
         size_t i = 0;
         for (size_t j = offset - fIndex; j < result.size() && i < count; j++) {
-            cout << "    " << (int)j << ": pattern index: " << i << " value: 0x" << hex
+            cout << "    " << static_cast<int>(j) << ": pattern index: " << i << " value: 0x" << hex
                  << static_cast<int>(p->patterns[i]) << endl;
             result[j] = std::max(result[j], (p->patterns[i]));
             i++;
@@ -323,7 +321,7 @@ void CodeInfo::ProcessLinear(const std::vector<uint16_t>& target, const size_t& 
     // if we reach the end, apply pattern
     fNextOffset += count + 1; // array items + one for the count
     fIndex--;                 // because of recursion
-    ProcessPattern(target, offset, result, false);
+    ProcessPattern(offset, result, false);
     if (*(fStaticOffset + fNextOffset) != 0 && offset > count) { // peek if there is more to come
         // make it tail recursive to save stack
         return ProcessLinear(target, offset, result);
@@ -403,7 +401,7 @@ void ProcessCodeLoop(OHOS::Hyphenate::CodeInfo& codeInfo, const std::vector<uint
         std::cout << "#loop c: '" << codeInfo.fCode << "' starting with offset: 0x" << std::hex << codeInfo.fOffset <<
             " table-offset 0x" << codeInfo.fNextOffset << " index: " << codeInfo.fIndex << std::endl;
 
-        codeInfo.ProcessPattern(target, i, result, codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN);
+        codeInfo.ProcessPattern(i, result, codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN);
         if (codeInfo.fType == OHOS::Hyphenate::PathType::PATTERN) {
             continueLoop = false;
         } else if (codeInfo.fType == OHOS::Hyphenate::PathType::DIRECT) {
