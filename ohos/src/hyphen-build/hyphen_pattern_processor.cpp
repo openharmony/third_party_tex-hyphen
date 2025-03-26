@@ -751,7 +751,7 @@ void WriteSharedLeafs(ofstream& out, uint16_t& pos, uint32_t& end)
                 Path path({sharedLeaf.first}, &uniqueRule.first);
                 sharedLeaf.second.offset = path.Write(out, pos, &end);
                 cout << "found unique " << hex << static_cast<int>(sharedLeaf.first) <<
-                " wrote: '" << sharedLeaf.second.offset << "' " << endl;
+                    " wrote: '" << sharedLeaf.second.offset << "' " << endl;
             }
         }
     }
