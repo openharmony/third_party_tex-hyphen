@@ -1,7 +1,7 @@
 {
   "name": "@ohos/tex-hyphen",
   "description": "This is the central repository for all hyphenation patterns",
-  "version": "CTAN-2021.03.21",
+  "version": "CTAN-2024.12.31",
   "license": "various",
   "publishAs": "resource-file",
   "segment": {
