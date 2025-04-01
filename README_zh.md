@@ -5,7 +5,7 @@ tex-hyphen是一个用于TeX系统的断字模式库，它能够在多种语言�
 
 来源：tex-hyphen  
 URL：https://github.com/hyphenation/tex-hyphen  
-版本：CTAN-2021.03.21  
+版本：CTAN-2024.12.31  
 License：多种组合  
 
 ## 引入背景陈述
