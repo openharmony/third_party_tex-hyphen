@@ -109,10 +109,6 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-hu.tex"
   },
   {
-    language = "hyph-hy"
-    file_path = "${hyphen_tex_root}/hyph-hy.tex"
-  },
-  {
     language = "hyph-id"
     file_path = "${hyphen_tex_root}/hyph-id.tex"
   },
