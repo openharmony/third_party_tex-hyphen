@@ -38,7 +38,6 @@ OHOS中使用以下语种资源，以下语种均使用友好型开源协议：
 * gl - 加利西亚语（Galician）
 * hr - 克罗地亚语（Croatian）
 * hu - 匈牙利语（Hungarian）
-* hy - 亚美尼亚语（Armenian）
 * id - 印度尼西亚语（Indonesian）
 * is - 冰岛语（Icelandic）
 * it - 意大利语（Italian）
