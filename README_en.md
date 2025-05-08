@@ -37,7 +37,6 @@ Languages used in OHOS,the following languages all use a user-friendly open-sour
 * gl - Galician
 * hr - Croatian
 * hu - Hungarian
-* hy - Armenian
 * id - Indonesian
 * is - Icelandic
 * it - Italian
