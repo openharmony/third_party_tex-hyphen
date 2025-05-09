@@ -17,11 +17,12 @@ import("//third_party/tex-hyphen/tex-hyphen.gni")
 ohos_executable("hpb_transform") {
   cflags_cc = [ "-std=c++17" ]
   output_name = "hpb_transform"
-  part_name = "tex-hyphen"
   install_enable = false
   sources =
       [ "$hyphen_root/ohos/src/hyphen-build/hyphen_pattern_processor.cpp" ]
   external_deps = [ "icu:shared_icuuc" ]
+  part_name = "tex-hyphen"
+  subsystem_name = "thirdparty"
 }
 
 dep_list = []
