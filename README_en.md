@@ -4,7 +4,7 @@ tex-hyphen is a hyphenation pattern library for the TeX system. It can correctly
 
 Source: tex-hyphen  
 URL: https://github.com/hyphenation/tex-hyphen  
-Version: CTAN-2021.03.21  
+Version: CTAN-2024.12.31  
 License: Various combinations 
 
 ## Background
