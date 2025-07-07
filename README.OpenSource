@@ -6,6 +6,7 @@
     "Version Number": "CTAN-2024.12.31",
     "Owner": "wangxiaokai@huawei.com",
     "Upstream URL": "https://github.com/hyphenation/tex-hyphen",
-    "Description": "This is the central repository for all hyphenation patterns"
+    "Description": "This is the central repository for all hyphenation patterns",
+    "Dependencies": [ "icu" ]
   }
 ]
