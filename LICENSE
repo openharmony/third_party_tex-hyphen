@@ -1,31 +1,9 @@
 The following files may be used under the terms of
-GNU GENERAL PUBLIC LICENSE License,version 1("GPL")：
+MOZILLA PUBLIC LICENSE,version 1.1("MPL1.1")：
 
-/hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-mk.tex
-/hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-sr-cyrl.tex
-
-The full terms of GPL can be found in the LICENSE-GPL file.
-
----------------------------------------------------------------
-
-The following files may be used under the terms of
-GNU GENERAL PUBLIC LICENSE License,version 2("GPL 2")：
-
-/hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-cs.tex
-/hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-id.tex
-/hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-sk.tex
 /hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-hu.tex
 
-The full terms of GPL 2 can be found in the LICENSE-GPL2 file.
-
----------------------------------------------------------------
-
-The following files may be used under the terms of
-GNU LESSER GENERAL PUBLIC LICENSE,Version 2.1("LGPL 2.1")：
-
-/hyph-utf8/tex/generic/hyph-utf8/patterns/tex/hyph-lv.tex
-
-The full terms of LGPL 2.1 can be found in the LICENSE-LGPL2.1 file.
+The full terms of MPL1.1 can be found in the LICENSE-MPL1.1 file.
 
 ---------------------------------------------------------------
 
