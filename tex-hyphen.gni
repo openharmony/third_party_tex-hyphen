@@ -33,10 +33,6 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-bn.tex"
   },
   {
-    language = "hyph-cs"
-    file_path = "${hyphen_tex_root}/hyph-cs.tex"
-  },
-  {
     language = "hyph-cy"
     file_path = "${hyphen_tex_root}/hyph-cy.tex"
   },
@@ -109,10 +105,6 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-hu.tex"
   },
   {
-    language = "hyph-id"
-    file_path = "${hyphen_tex_root}/hyph-id.tex"
-  },
-  {
     language = "hyph-is"
     file_path = "${hyphen_tex_root}/hyph-is.tex"
   },
@@ -135,14 +127,6 @@ tex_source_config = [
   {
     language = "hyph-lt"
     file_path = "${hyphen_tex_root}/hyph-lt.tex"
-  },
-  {
-    language = "hyph-lv"
-    file_path = "${hyphen_tex_root}/hyph-lv.tex"
-  },
-  {
-    language = "hyph-mk"
-    file_path = "${hyphen_tex_root}/hyph-mk.tex"
   },
   {
     language = "hyph-ml"
@@ -197,16 +181,8 @@ tex_source_config = [
     file_path = "${hyphen_tex_root}/hyph-sh-latn.tex"
   },
   {
-    language = "hyph-sk"
-    file_path = "${hyphen_tex_root}/hyph-sk.tex"
-  },
-  {
     language = "hyph-sl"
     file_path = "${hyphen_tex_root}/hyph-sl.tex"
-  },
-  {
-    language = "hyph-sr-cyrl"
-    file_path = "${hyphen_tex_root}/hyph-sr-cyrl.tex"
   },
   {
     language = "hyph-sv"
