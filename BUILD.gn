@@ -43,7 +43,7 @@ foreach(tex_source, tex_source_config) {
       rebase_path(sources[0], root_build_dir),
       rebase_path("$target_out_dir/hpb_out", root_build_dir),
     ]
-    public_deps = [ ":hpb_transform(${host_toolchain})" ]
+    deps = [ ":hpb_transform(${host_toolchain})" ]
   }
 
   target_name = get_path_info(hpb_file, "name")
