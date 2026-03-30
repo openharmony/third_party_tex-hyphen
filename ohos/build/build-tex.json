@@ -12,9 +12,6 @@
         "filename": "hyph-bn.tex"
     },
     {
-        "filename": "hyph-cs.tex"
-    },
-    {
         "filename": "hyph-cy.tex"
     },
     {
@@ -69,9 +66,6 @@
         "filename": "hyph-hu.tex"
     },
     {
-        "filename": "hyph-id.tex"
-    },
-    {
         "filename": "hyph-is.tex"
     },
     {
@@ -88,12 +82,6 @@
     },
     {
         "filename": "hyph-lt.tex"
-    },
-    {
-        "filename": "hyph-lv.tex"
-    },
-    {
-        "filename": "hyph-mk.tex"
     },
     {
         "filename": "hyph-ml.tex"
@@ -135,13 +123,7 @@
         "filename": "hyph-sh-latn.tex"
     },
     {
-        "filename": "hyph-sk.tex"
-    },
-    {
         "filename": "hyph-sl.tex"
-    },
-    {
-        "filename": "hyph-sr-cyrl.tex"
     },
     {
         "filename": "hyph-sv.tex"

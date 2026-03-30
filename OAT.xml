@@ -79,10 +79,6 @@
             <filefilter name="licenseFileNamePolicyFilter" desc="Filters for LICENSE file policies">
                 <filteritem type="filename" name="LICENSE" desc="the project license file"/>
                 <filteritem type="filename" name="LICENSE-BSD3" desc="the project license file"/>
-                <filteritem type="filename" name="LICENSE-GPL" desc="the project license file"/>
-                <filteritem type="filename" name="LICENSE-GPL2" desc="the project license file"/>
-                <filteritem type="filename" name="LICENSE-LGPL2.1" desc="the project license file"/>
-                <filteritem type="filename" name="LICENSE-LGPL3" desc="the project license file"/>
                 <filteritem type="filename" name="LICENSE-LPPL" desc="the project license file"/>
                 <filteritem type="filename" name="LICENSE-LPPL1.2" desc="the project license file"/>
                 <filteritem type="filename" name="LICENSE-LPPL1.3" desc="the project license file"/>

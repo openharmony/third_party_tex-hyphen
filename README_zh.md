@@ -14,15 +14,12 @@ License：多种组合
 ## 语种归类
 tex目录下包含了多个来自TeX hyphenations patterns的连字符规则，不同语种使用的开源许可证各不相同，整理归类：
 * MIT License
-* GPL,GPL 2
-* LGPL 1,LGPL 2.1
 * LPPL 1,LPPL 1.2,LPPL 1.3
 * MPL 1.1
 * BSD 3
 
 OHOS中使用以下语种资源，以下语种均使用友好型开源协议：
 * be - 白俄罗斯语（Belarusian）
-* cs - 捷克语（Czech）
 * cy - 威尔士语（Welsh）
 * da - 丹麦语（Danish）
 * de-1901 - 德语（German,1901orthography）
@@ -38,22 +35,17 @@ OHOS中使用以下语种资源，以下语种均使用友好型开源协议：
 * gl - 加利西亚语（Galician）
 * hr - 克罗地亚语（Croatian）
 * hu - 匈牙利语（Hungarian）
-* id - 印度尼西亚语（Indonesian）
 * is - 冰岛语（Icelandic）
 * it - 意大利语（Italian）
 * ka - 格鲁吉亚语（Georgian）
 * lt - 立陶宛语（Lithuanian）
-* lv - 拉脱维亚语（Latvian）
-* mk - 马其顿语（Macedonian）
 * mn-cyrl - 蒙古语（Mongolian,Cyrillicscript）
 * nl - 荷兰语（Dutch）
 * pt - 葡萄牙语（Portuguese）
 * ru - 俄语（Russian）
 * sh-cyrl - 塞尔维亚-克罗地亚语（Serbo-Croatian,Cyrillicscript）
 * sh-latn - 塞尔维亚-克罗地亚语（Serbo-Croatian,Latinscript）
-* sk - 斯洛伐克语（Slovak）
 * sl - 斯洛文尼亚语（Slovenian）
-* sr-cyrl - 塞尔维亚语（Serbian,Cyrillicscript）
 * sv - 瑞典语（Swedish）
 * th - 泰语（Thai）
 * tk - 土库曼语（Turkmen）
