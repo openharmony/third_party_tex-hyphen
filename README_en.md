@@ -13,15 +13,12 @@ In multilingual document processing and typesetting, correct hyphenation is cruc
 ## Language Classification
 The tex directory contains multiple hyphenation patterns from TeX hyphenation patterns, each using different open-source licenses. The classification is as follows:
 * MIT License
-* GPL, GPL 2
-* LGPL 1, LGPL 2.1
 * LPPL 1, LPPL 1.2, LPPL 1.3
 * MPL 1.1
 * BSD 3
 
 Languages used in OHOS,the following languages all use a user-friendly open-source license.:
 * be - Belarusian
-* cs - Czech
 * cy - Welsh
 * da - Danish
 * de-1901 - German (1901 orthography)
@@ -37,22 +34,17 @@ Languages used in OHOS,the following languages all use a user-friendly open-sour
 * gl - Galician
 * hr - Croatian
 * hu - Hungarian
-* id - Indonesian
 * is - Icelandic
 * it - Italian
 * ka - Georgian
 * lt - Lithuanian
-* lv - Latvian
-* mk - Macedonian
 * mn-cyrl - Mongolian (Cyrillic script)
 * nl - Dutch
 * pt - Portuguese
 * ru - Russian
 * sh-cyrl - Serbo-Croatian (Cyrillic script)
 * sh-latn - Serbo-Croatian (Latin script)
-* sk - Slovak
 * sl - Slovenian
-* sr-cyrl - Serbian (Cyrillic script)
 * sv - Swedish
 * th - Thai
 * tk - Turkmen

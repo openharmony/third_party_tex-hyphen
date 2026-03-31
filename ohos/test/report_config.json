@@ -6,13 +6,6 @@
             "words": []
         },
         {
-            "filename": "hyph-cs.tex",
-            "words": [
-                "vzorek",
-                "funkce"
-            ]
-        },
-        {
             "filename": "hyph-cy.tex",
             "words": [
                 "helo",
@@ -140,15 +133,6 @@
             ]
         },
         {
-            "filename": "hyph-id.tex",
-            "words": [
-                "contoh",
-                "sampel",
-                "keluaran",
-                "proses"
-            ]
-        },
-        {
             "filename": "hyph-is.tex",
             "words": [
                 "heimur",
@@ -190,29 +174,6 @@
                 "išvestis",
                 "procesas",
                 "funkcija"
-            ]
-        },
-        {
-            "filename": "hyph-lv.tex",
-            "words": [
-                "sveiki",
-                "pasaule",
-                "paraugs",
-                "ievade",
-                "izvade",
-                "process",
-                "funkcija"
-            ]
-        },
-        {
-            "filename": "hyph-mk.tex",
-            "words": [
-                "здраво",
-                "пример",
-                "тест",
-                "примерок",
-                "податоци",
-                "функција"
             ]
         },
         {
@@ -258,20 +219,12 @@
             "words": []
         },
         {
-            "filename": "hyph-sk.tex",
-            "words": []
-        },
-        {
             "filename": "hyph-sl.tex",
             "words": [
                 "izhod",
                 "proces",
                 "funkcija"
             ]
-        },
-        {
-            "filename": "hyph-sr-cyrl.tex",
-            "words": []
         },
         {
             "filename": "hyph-sv.tex",
