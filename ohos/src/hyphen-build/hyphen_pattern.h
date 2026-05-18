@@ -51,7 +51,7 @@ std::vector<uint16_t> ConvertToUtf16(const std::string& utf8Str);
 
 class HyphenProcessor {
 public:
-    void Proccess(const std::string& filePath, const std::string& outFilePath) const;
+    void Process(const std::string& filePath, const std::string& outFilePath) const;
 };
 
 class HyphenReader {

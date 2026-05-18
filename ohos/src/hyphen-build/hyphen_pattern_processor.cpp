@@ -173,7 +173,7 @@ struct Path {
         if (paths.size() == 0) {
             return;
         }
-        for (auto path : paths) {
+        for (const auto& path : paths) {
             path.second.Print(indent);
         }
         cout << endl;
@@ -432,7 +432,7 @@ void processSection(const string& line, map<string, vector<string>>& sections, v
 static void ProcessContent(const string& line, vector<string>* current)
 {
     string pat;
-    for (auto code : line) {
+    for (const auto& code : line) {
         if (iswspace(code)) {
             if (!pat.empty()) {
                 current->push_back(pat);
@@ -504,7 +504,7 @@ static vector<uint16_t> ProcessWord(const string& wordString)
     auto word = ConvertToUtf16(wordString);
     vector<uint16_t> result;
     bool addedBreak = false;
-    for (const auto code : word) {
+    for (const auto& code : word) {
         if (code == '-') {
             result.push_back(BREAK_FLAG);
             addedBreak = true;
@@ -608,7 +608,7 @@ void ResolveLeavesFromPatterns(const vector<vector<uint16_t>>& utf16Patterns, ma
         if (leaves[ix].patterns.find(codepoints) != leaves[ix].patterns.cend()) {
             cerr << "### Multiple definitions for pattern with size: " << codepoints.size() << endl;
             cerr << "###";
-            for (auto codepoint : codepoints) {
+            for (const auto& codepoint : codepoints) {
                 cerr << " 0x" << hex << static_cast<int>(codepoint);
             }
             cerr << endl;
@@ -662,7 +662,7 @@ static void BreakLeavesIntoPaths(map<uint16_t, PatternHolder>& leaves, CpRange& 
         }
 
         // collect some stats
-        for (auto path : leave.second.paths) {
+        for (const auto& path : leave.second.paths) {
             if (printCounts) {
                 cout << "leafs-nodes: " << path.second.leafCount << " / " << path.second.count << endl;
                 cout << "min-max: " << path.second.minimumCP << " / " << path.second.maximumCP << endl;
@@ -719,8 +719,8 @@ static int32_t FormatOutFileHead(ofstream& out, const WriteOffestsParams& params
 
 void ProcessUniqueRule(std::pair<const vector<uint8_t>, Rule>& uniqueRule)
 {
-    for (auto ite : uniqueRule.second.patterns) {
-        for (auto rule : ite.second) {
+    for (const auto& ite : uniqueRule.second.patterns) {
+        for (const auto& rule : ite.second) {
             if (!uniqueRule.second.uniqLeafs.count(*rule.cbegin())) {
                 uniqueRule.second.uniqLeafs[*rule.cbegin()] = {0, 0};
             }
@@ -806,8 +806,8 @@ static bool WriteLeavePathsToOutFile(map<uint16_t, PatternHolder>& leaves, const
         }
     }
 
-    // write distinc code points array after the direct ones
-    for (auto path : bigOnes) {
+    // write distinct code points array after the direct ones
+    for (const auto path : bigOnes) {
         uint32_t end{0};
         uint16_t value = path->Write(out, tableOffset, &end);
         uint16_t offset = value & 0x3fff;
@@ -930,7 +930,7 @@ void CreateDirectory(const std::string& folderPath)
     }
 }
 
-void HyphenProcessor::Proccess(const std::string& filePath, const std::string& outFilePath) const
+void HyphenProcessor::Process(const std::string& filePath, const std::string& outFilePath) const
 {
     map<string, vector<string>> sections;
     if (ResolveSectionsFromFile(filePath, sections) != SUCCEED) {
@@ -996,7 +996,7 @@ int main(int argc, char** argv)
     string outFilePath = argv[2];
 
     OHOS::Hyphenate::HyphenProcessor hyphenProcessor;
-    hyphenProcessor.Proccess(filePath, outFilePath);
+    hyphenProcessor.Process(filePath, outFilePath);
 
     return SUCCEED;
 }
